@@ -187,14 +187,17 @@
            {{ request()->is('cash/transactions*') ? 'text-red-600 font-semibold bg-red-50' : 'text-gray-700 hover:bg-red-50 hover:text-red-600' }}">
            - Transaction
         </a>
-{{-- Rapport de session de caisse  --}}
-         @if(isset($session) && $session)
-    <a href="/sessions/{{ $session->id }}/report"
+@php
+    $currentSession = isset($cashRegister) ? $cashRegister->currentSession() : null;
+@endphp
+@if($currentSession)
+    <a href="{{ route('cash.sessions.report', ['session' => $currentSession->id]) }}"
        class="block px-4 py-2 text-sm rounded transition
-       {{ request()->is('sessions/' . $session->id . '/report*') ? 'text-red-600 font-semibold bg-red-50' : 'text-gray-700 hover:bg-red-50 hover:text-red-600' }}">
-       Rapports
+       {{ request()->is('cash/sessions/' . $currentSession->id . '/report*') ? 'text-red-600 font-semibold bg-red-50' : 'text-gray-700 hover:bg-red-50 hover:text-red-600' }}">
+       - Rapport de Session
     </a>
 @endif
+
 
     </div>
 </div>
@@ -252,7 +255,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M20 12H4M12 20v-8m0-8v4m0 0l-2.5 2.5M12 8l2.5 2.5" />
                     </svg>
-                <span class="ml-3 {{ request()->is('inventories*') || request()->is('roles*') || request()->is('permissions*') ? 'text-red-600 font-semibold' : '' }}">
+                <span class="ml-3 {{ request()->is('stock/warehouses*') || request()->is('roles*') || request()->is('permissions*') ? 'text-red-600 font-semibold' : '' }}">
                     Gestion des Stocks
                 </span>
             </div>
@@ -265,8 +268,8 @@
         </button>
 
         <div x-show="openMenu === 'stocks'" x-collapse class="ml-8 space-y-1">
-            <a href="/inventories"
-               class="block px-4 py-2 text-sm rounded transition {{ request()->is('inventories*') ? 'text-red-600 font-semibold bg-red-50' : 'text-gray-700 hover:bg-red-50 hover:text-red-600' }}">- Stocks</a>
+            <a href="/stock/warehouses"
+               class="block px-4 py-2 text-sm rounded transition {{ request()->is('warehouses*') ? 'text-red-600 font-semibold bg-red-50' : 'text-gray-700 hover:bg-red-50 hover:text-red-600' }}">- Stocks</a>
             <a href="/roles"
                class="block px-4 py-2 text-sm rounded transition {{ request()->is('roles*') ? 'text-red-600 font-semibold bg-red-50' : 'text-gray-700 hover:bg-red-50 hover:text-red-600' }}">- Rôle </a>
             <a href="/permissions"
@@ -297,7 +300,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14c-4.418 0-8 1.79-8 4v2h16v-2c0-2.21-3.582-4-8-4z" />
                     </svg>
-                <span class="ml-3 {{ request()->is('hr/employees*') || request()->is('roles*') || request()->is('permissions*') ? 'text-red-600 font-semibold' : '' }}">
+                <span class="ml-3 {{ request()->is('hr/employees/create*') || request()->is('roles*') || request()->is('permissions*') ? 'text-red-600 font-semibold' : '' }}">
                     Gestion des Personnels
                 </span>
             </div>
@@ -310,8 +313,8 @@
         </button>
 
         <div x-show="openMenu === 'personnels'" x-collapse class="ml-8 space-y-1">
-            <a href="/hr/employees"
-               class="block px-4 py-2 text-sm rounded transition {{ request()->is('hr/employees*') ? 'text-red-600 font-semibold bg-red-50' : 'text-gray-700 hover:bg-red-50 hover:text-red-600' }}">- Employées</a>
+            <a href="/hr/employees/create"
+               class="block px-4 py-2 text-sm rounded transition {{ request()->is('hr/employees/create*') ? 'text-red-600 font-semibold bg-red-50' : 'text-gray-700 hover:bg-red-50 hover:text-red-600' }}">- Employées</a>
             <a href="/roles"
                class="block px-4 py-2 text-sm rounded transition {{ request()->is('roles*') ? 'text-red-600 font-semibold bg-red-50' : 'text-gray-700 hover:bg-red-50 hover:text-red-600' }}">- Rôle </a>
             <a href="/permissions"

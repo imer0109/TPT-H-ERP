@@ -5,7 +5,7 @@
     <div class="max-w-4xl mx-auto">
         <div class="flex items-center justify-between mb-6">
             <h1 class="text-2xl font-semibold text-gray-900">Nouvelle Transaction</h1>
-            <a href="{{ route('cash.registers.show', $cashRegister) }}" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded">
+            <a href="{{ route('cash.registers.show', ['cashRegister' => $cashRegister->id]) }}" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded">
                 Retour à la caisse
             </a>
         </div>
@@ -31,7 +31,7 @@
                     </div>
                 </div>
 
-                <form action="{{ route('cash.transactions.store', $cashRegister) }}" method="POST" enctype="multipart/form-data" class="space-y-6">
+                <form action="{{ route('cash.transactions.store', ['cashRegister' => $cashRegister->id]) }}" method="POST" enctype="multipart/form-data" class="space-y-6">
                     @csrf
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -125,7 +125,7 @@
 
                     <div class="pt-5">
                         <div class="flex justify-end">
-                            <a href="{{ route('cash.registers.show', $cashRegister) }}" class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                            <a href="{{ route('cash.registers.show', ['cashRegister' => $cashRegister->id]) }}" class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
                                 Annuler
                             </a>
                             <button type="submit" class="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">

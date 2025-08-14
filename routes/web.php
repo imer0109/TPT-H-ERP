@@ -10,8 +10,10 @@ use App\Http\Controllers\CashSessionController;
 use App\Http\Controllers\CashTransactionController;
 use App\Http\Controllers\TransactionNatureController;
 use App\Http\Controllers\ClientController;
+use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\ClientReclamationController;
 use App\Http\Controllers\ClientInteractionController;
+use App\Http\Controllers\WarehouseController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
@@ -41,9 +43,9 @@ Route::middleware(['auth'])->group(function () {
     // Routes pour le module de caisse
     Route::prefix('cash')->name('cash.')->group(function () {
         // Routes pour les caisses
-Route::resource('registers', CashRegisterController::class)->parameters([
+    Route::resource('registers', CashRegisterController::class)->parameters([
     'registers' => 'cashRegister'
-]);
+    ]);
        
         // Routes pour les sessions de caisse
         Route::post('registers/{cashRegister}/open', [CashSessionController::class, 'open'])->name('sessions.open');
@@ -52,7 +54,8 @@ Route::resource('registers', CashRegisterController::class)->parameters([
         
         // Routes pour les transactions
         Route::get('registers/{cashRegister}/transactions/create', [CashTransactionController::class, 'create'])->name('transactions.create');
-        Route::resource('transactions', CashTransactionController::class)->except(['create']);
+        Route::post('registers/{cashRegister}/transactions', [CashTransactionController::class, 'store'])->name('transactions.store');
+        Route::resource('transactions', CashTransactionController::class)->except(['create', 'store']);
         
         // Routes pour les natures de transaction
         Route::resource('natures', TransactionNatureController::class);

@@ -83,7 +83,7 @@ class CashTransactionController extends Controller
     public function create(CashRegister $cashRegister)
     {
         if (!$cashRegister->est_ouverte) {
-            return redirect()->route('cash.registers.show', $cashRegister)
+            return redirect()->route('cash.registers.show', ['cashRegister' => $cashRegister->id])
                 ->with('error', 'La caisse doit être ouverte pour effectuer des transactions.');
         }
         
@@ -100,7 +100,7 @@ class CashTransactionController extends Controller
         
         $session = $cashRegister->currentSession();
         if (!$session) {
-            return redirect()->route('cash.registers.show', $cashRegister)
+            return redirect()->route('cash.registers.show', ['cashRegister' => $cashRegister->id])
                 ->with('error', 'Aucune session de caisse ouverte.');
         }
         
@@ -148,7 +148,7 @@ class CashTransactionController extends Controller
         
         $cashRegister->update(['solde_actuel' => $nouveauSolde]);
         
-        return redirect()->route('cash.registers.show', $cashRegister)
+        return redirect()->route('cash.registers.show', ['cashRegister' => $cashRegister->id])
             ->with('success', 'Transaction enregistrée avec succès.');
     }
 

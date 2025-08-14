@@ -1,14 +1,16 @@
 <?php
 
 namespace App\Http\Controllers;
-
 use App\Models\Warehouse;
-use Illuminate\Http\Request;
+
+use App\Http\Controllers\Controller;
 use App\Http\Requests\WarehouseRequest;
+
+use Illuminate\Http\Request;
 
 class WarehouseController extends Controller
 {
-    public function index()
+     public function index()
     {
         $warehouses = Warehouse::with(['entity', 'createdBy'])->paginate(10);
         return view('stock.warehouses.index', compact('warehouses'));

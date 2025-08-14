@@ -128,7 +128,7 @@
                                 <label for="solde_final" class="block text-sm font-medium text-gray-700">Solde final</label>
                                 <div class="mt-1 relative rounded-md shadow-sm">
                                     <input type="number" name="solde_final" id="solde_final" step="0.01" min="0" value="{{ old('solde_final', $cashRegister->solde_actuel) }}" required
-                                        class="focus:ring-red-500 focus:border-red-500 block w-full pr-12 sm:text-sm border-gray-300 rounded-md">
+                                        class="focus:ring-red-500 focus:border-red-500 border py-2 block w-full pr-12 sm:text-sm border-gray-300 rounded-md">
                                     <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                                         <span class="text-gray-500 sm:text-sm">FCFA</span>
                                     </div>
@@ -137,7 +137,7 @@
                             <div>
                                 <label for="commentaire" class="block text-sm font-medium text-gray-700">Commentaire (optionnel)</label>
                                 <textarea name="commentaire" id="commentaire" rows="2"
-                                    class="mt-1 focus:ring-red-500 focus:border-red-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">{{ old('commentaire') }}</textarea>
+                                    class="mt-1 focus:ring-red-500 focus:border-red-500 block border w-full shadow-sm sm:text-sm border-gray-300 rounded-md">{{ old('commentaire') }}</textarea>
                             </div>
                             <div>
                                 <label for="justificatif" class="block text-sm font-medium text-gray-700">Justificatif (optionnel)</label>

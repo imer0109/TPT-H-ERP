@@ -32,14 +32,24 @@ class CashRegisterController extends Controller
             'solde_actuel' => 'required|numeric|min:0'
         ]);
 
+        $entity = $validated['entity_type']::findOrFail($validated['entity_id']);
+        
+        // Récupérer la raison sociale en fonction du type d'entité
+        $raison_sociale = '';
+        if ($validated['entity_type'] === 'App\\Models\\Company') {
+            $raison_sociale = $entity->raison_sociale;
+        } else if ($validated['entity_type'] === 'App\\Models\\Agency') {
+            $raison_sociale = $entity->company->raison_sociale;
+        }
+        
         $cashRegister = new CashRegister([
             'nom' => $validated['nom'],
+            'raison_sociale' => $raison_sociale,
             'type' => $validated['type'],
             'solde_actuel' => $validated['solde_actuel'],
             'est_ouverte' => false
         ]);
 
-        $entity = $validated['entity_type']::findOrFail($validated['entity_id']);
         $entity->cashRegisters()->save($cashRegister);
 
         return redirect()->route('cash.registers.index')
@@ -68,12 +78,22 @@ class CashRegisterController extends Controller
             'type' => 'required|in:principale,secondaire'
         ]);
 
+        $entity = $validated['entity_type']::findOrFail($validated['entity_id']);
+        
+        // Récupérer la raison sociale en fonction du type d'entité
+        $raison_sociale = '';
+        if ($validated['entity_type'] === 'App\\Models\\Company') {
+            $raison_sociale = $entity->raison_sociale;
+        } else if ($validated['entity_type'] === 'App\\Models\\Agency') {
+            $raison_sociale = $entity->company->raison_sociale;
+        }
+        
         $cashRegister->update([
             'nom' => $validated['nom'],
+            'raison_sociale' => $raison_sociale,
             'type' => $validated['type']
         ]);
 
-        $entity = $validated['entity_type']::findOrFail($validated['entity_id']);
         $cashRegister->entity()->associate($entity);
         $cashRegister->save();
 

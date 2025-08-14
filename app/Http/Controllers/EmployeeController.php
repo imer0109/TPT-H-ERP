@@ -9,13 +9,12 @@ use App\Models\Warehouse;
 use App\Http\Requests\EmployeeRequest;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Position;
-
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 class EmployeeController extends Controller
 {
-    public function index(Request $request)
+     public function index(Request $request)
     {
         $employees = Employee::with(['company', 'agency', 'warehouse', 'position', 'supervisor'])
             ->when($request->search, function($query, $search) {

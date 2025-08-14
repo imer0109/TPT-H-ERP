@@ -12,11 +12,17 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('clients', function (Blueprint $table) {
-            $table->uuid('id');
+            $table->id();
+            $table->string('code_client')->unique();
+            $table->foreignId('company_id')->nullable()->constrained()->onDelete('set null');
+            $table->foreignId('agency_id')->nullable()->constrained()->onDelete('set null');
+            $table->string('nom_raison_sociale');
             $table->string('name');
             $table->string('comment');
             $table->string('site')->nullable();
             $table->boolean('published')->default(false);
+            $table->timestamps();
+            $table->softDeletes();
         });
     }
 
