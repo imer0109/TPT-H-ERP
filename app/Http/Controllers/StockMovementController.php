@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Http\Controllers;
-
 use App\Models\StockMovement;
 use App\Models\Product;
 use App\Models\Warehouse;
@@ -10,6 +9,8 @@ use App\Http\Requests\StockMovementRequest;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\StockMovementsImport;
 use App\Exports\StockMovementsExport;
+use App\Http\Controllers\Controller;
+
 
 class StockMovementController extends Controller
 {
@@ -52,7 +53,7 @@ class StockMovementController extends Controller
         // Mettre à jour le stock du produit
         $this->updateProductStock($movement);
 
-        return redirect()->route('movements.index')->with('success', 'Mouvement de stock enregistré avec succès');
+        return redirect()->route('stock.movements.index')->with('success', 'Mouvement de stock enregistré avec succès');
     }
 
     public function show(StockMovement $movement)
@@ -69,7 +70,7 @@ class StockMovementController extends Controller
 
         Excel::import(new StockMovementsImport, $request->file('file'));
 
-        return redirect()->route('movements.index')->with('success', 'Import terminé avec succès');
+        return redirect()->route('stock.movements.index')->with('success', 'Import terminé avec succès');
     }
 
     public function export(Request $request)

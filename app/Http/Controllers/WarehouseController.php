@@ -24,7 +24,7 @@ class WarehouseController extends Controller
     public function store(WarehouseRequest $request)
     {
         $warehouse = Warehouse::create($request->validated() + ['created_by' => auth()->id()]);
-        return redirect()->route('warehouses.index')->with('success', 'Dépôt créé avec succès');
+        return redirect()->route('stock.warehouses.index')->with('success', 'Dépôt créé avec succès');
     }
 
     public function show(Warehouse $warehouse)
@@ -41,12 +41,12 @@ class WarehouseController extends Controller
     public function update(WarehouseRequest $request, Warehouse $warehouse)
     {
         $warehouse->update($request->validated());
-        return redirect()->route('warehouses.index')->with('success', 'Dépôt mis à jour avec succès');
+        return redirect()->route('stock.warehouses.index')->with('success', 'Dépôt mis à jour avec succès');
     }
 
     public function destroy(Warehouse $warehouse)
     {
         $warehouse->delete();
-        return redirect()->route('warehouses.index')->with('success', 'Dépôt supprimé avec succès');
+        return redirect()->route('stock.warehouses.index')->with('success', 'Dépôt supprimé avec succès');
     }
 }

@@ -14,7 +14,7 @@
                     <div>
                         <label for="module" class="block text-sm font-medium text-gray-700">Module</label>
                         <input type="text" name="module" id="module" value="{{ old('module', $permission->module) }}" required
-                            class="mt-1 focus:ring-red-500 focus:border-red-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                            class="mt-1 focus:ring-red-500 border py-2 focus:border-red-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
                         @error('module')
                         <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                         @enderror
@@ -23,7 +23,7 @@
                     <div>
                         <label for="nom" class="block text-sm font-medium text-gray-700">Nom de la permission</label>
                         <input type="text" name="nom" id="nom" value="{{ old('nom', $permission->nom) }}" required
-                            class="mt-1 focus:ring-red-500 focus:border-red-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                            class="mt-1 focus:ring-red-500 border py-2 focus:border-red-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
                         @error('nom')
                         <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                         @enderror
@@ -31,7 +31,7 @@
 
                     <div>
                         <label for="action" class="block text-sm font-medium text-gray-700">Action</label>
-                        <select name="action" id="action" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm rounded-md">
+                        <select name="action" id="action" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm rounded-md">
                             <option value="create" {{ old('action', $permission->action) === 'create' ? 'selected' : '' }}>Créer</option>
                             <option value="read" {{ old('action', $permission->action) === 'read' ? 'selected' : '' }}>Lire</option>
                             <option value="update" {{ old('action', $permission->action) === 'update' ? 'selected' : '' }}>Modifier</option>

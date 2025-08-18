@@ -255,7 +255,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M20 12H4M12 20v-8m0-8v4m0 0l-2.5 2.5M12 8l2.5 2.5" />
                     </svg>
-                <span class="ml-3 {{ request()->is('stock/warehouses*') || request()->is('roles*') || request()->is('permissions*') ? 'text-red-600 font-semibold' : '' }}">
+                <span class="ml-3 {{ request()->is('stock/warehouses*') || request()->is('stock/movements*') || request()->is('stock/transfers*') || request()->is('stock/alerts*') || request()->is('stock/inventories*') ? 'text-red-600 font-semibold' : '' }}">
                     Gestion des Stocks
                 </span>
             </div>
@@ -270,10 +270,14 @@
         <div x-show="openMenu === 'stocks'" x-collapse class="ml-8 space-y-1">
             <a href="/stock/warehouses"
                class="block px-4 py-2 text-sm rounded transition {{ request()->is('warehouses*') ? 'text-red-600 font-semibold bg-red-50' : 'text-gray-700 hover:bg-red-50 hover:text-red-600' }}">- Stocks</a>
-            <a href="/roles"
-               class="block px-4 py-2 text-sm rounded transition {{ request()->is('roles*') ? 'text-red-600 font-semibold bg-red-50' : 'text-gray-700 hover:bg-red-50 hover:text-red-600' }}">- Rôle </a>
-            <a href="/permissions"
-               class="block px-4 py-2 text-sm rounded transition {{ request()->is('permissions*') ? 'text-red-600 font-semibold bg-red-50' : 'text-gray-700 hover:bg-red-50 hover:text-red-600' }}">- Permissions </a>
+            <a href="/stock/movements"
+               class="block px-4 py-2 text-sm rounded transition {{ request()->is('movements*') ? 'text-red-600 font-semibold bg-red-50' : 'text-gray-700 hover:bg-red-50 hover:text-red-600' }}">- Mouvement </a>
+            <a href="/stock/transfers"
+               class="block px-4 py-2 text-sm rounded transition {{ request()->is('transfers*') ? 'text-red-600 font-semibold bg-red-50' : 'text-gray-700 hover:bg-red-50 hover:text-red-600' }}">- Transfert </a>
+            <a href="/stock/alerts"
+               class="block px-4 py-2 text-sm rounded transition {{ request()->is('alerts*') ? 'text-red-600 font-semibold bg-red-50' : 'text-gray-700 hover:bg-red-50 hover:text-red-600' }}">- Alerte </a>
+            <a href="/stock/inventories"
+               class="block px-4 py-2 text-sm rounded transition {{ request()->is('inventories*') ? 'text-red-600 font-semibold bg-red-50' : 'text-gray-700 hover:bg-red-50 hover:text-red-600' }}">- Inventaire </a>
         </div>
     </div>
 

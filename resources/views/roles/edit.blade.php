@@ -14,7 +14,7 @@
                     <div>
                         <label for="nom" class="block text-sm font-medium text-gray-700">Nom du rôle</label>
                         <input type="text" name="nom" id="nom" value="{{ old('nom', $role->nom) }}" required
-                            class="mt-1 focus:ring-red-500 focus:border-red-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                            class="mt-1 focus:ring-red-500 border py-2 focus:border-red-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
                         @error('nom')
                         <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                         @enderror
@@ -23,7 +23,7 @@
                     <div>
                         <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
                         <textarea name="description" id="description" rows="3"
-                            class="mt-1 focus:ring-red-500 focus:border-red-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">{{ old('description', $role->description) }}</textarea>
+                            class="mt-1 focus:ring-red-500 focus:border-red-500 border block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">{{ old('description', $role->description) }}</textarea>
                         @error('description')
                         <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                         @enderror

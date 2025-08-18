@@ -14,6 +14,9 @@ use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\ClientReclamationController;
 use App\Http\Controllers\ClientInteractionController;
 use App\Http\Controllers\WarehouseController;
+use App\Http\Controllers\StockMovementController;
+use App\Http\Controllers\StockTransferController;
+
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
@@ -55,6 +58,7 @@ Route::middleware(['auth'])->group(function () {
         // Routes pour les transactions
         Route::get('registers/{cashRegister}/transactions/create', [CashTransactionController::class, 'create'])->name('transactions.create');
         Route::post('registers/{cashRegister}/transactions', [CashTransactionController::class, 'store'])->name('transactions.store');
+        Route::patch('transactions/{transaction}/validate', [CashTransactionController::class, 'validate'])->name('transactions.validate');
         Route::resource('transactions', CashTransactionController::class)->except(['create', 'store']);
         
         // Routes pour les natures de transaction
