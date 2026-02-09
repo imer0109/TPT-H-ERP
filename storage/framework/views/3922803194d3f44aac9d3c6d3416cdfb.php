@@ -1,1 +1,0 @@
-<?php /**PATH C:\Users\Rémi\Desktop\TPT INTERNATIONAL\PROJET TPT-H ERP\TPT-H ERP\resources\views\static-permissions\index.blade.php ENDPATH**/ ?>

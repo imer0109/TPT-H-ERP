@@ -304,6 +304,9 @@ Route::prefix('hr')->name('hr.')->middleware(['auth', 'verified'])->group(functi
     // Dashboard
     Route::get('dashboard', [HrDashboardController::class, 'index'])->name('dashboard');
     
+    // Employés
+    Route::resource('employees', \App\Http\Controllers\HR\EmployeeController::class);
+    
     Route::prefix('employees/{employee}/assignments')->name('employees.assignments.')->group(function () {
         Route::get('create', [EmployeeAssignmentController::class, 'create'])->name('create');
         Route::post('/', [EmployeeAssignmentController::class, 'store'])->name('store');

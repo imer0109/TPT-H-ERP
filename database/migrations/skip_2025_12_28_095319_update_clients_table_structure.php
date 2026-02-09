@@ -46,28 +46,74 @@ return new class extends Migration
                 $table->dropColumn($columnsToDelete);
             }
             
-            $table->string('type_client')->after('nom_raison_sociale');
-            $table->string('telephone')->after('type_client');
-            $table->string('whatsapp')->after('telephone');
-            $table->string('email')->after('whatsapp');
-            $table->string('adresse')->after('email');
-            $table->string('ville')->after('adresse');
-            $table->string('contact_principal')->after('ville');
-            $table->string('canal_acquisition')->after('contact_principal');
-            $table->unsignedBigInteger('referent_commercial_id')->nullable()->after('canal_acquisition');
-            $table->string('type_relation')->after('referent_commercial_id');
-            $table->integer('delai_paiement')->after('type_relation');
-            $table->decimal('plafond_credit', 15, 2)->after('delai_paiement');
-            $table->string('mode_paiement_prefere')->after('plafond_credit');
-            $table->string('statut')->after('mode_paiement_prefere');
-            $table->string('categorie')->after('statut');
-            $table->string('site_web')->nullable()->after('categorie');
-            $table->text('notes')->nullable()->after('site_web');
+            if (!Schema::hasColumn('clients', 'type_client')) {
+                $table->string('type_client')->after('nom_raison_sociale');
+            }
+            if (!Schema::hasColumn('clients', 'telephone')) {
+                $table->string('telephone')->after('type_client');
+            }
+            if (!Schema::hasColumn('clients', 'whatsapp')) {
+                $table->string('whatsapp')->after('telephone');
+            }
+            if (!Schema::hasColumn('clients', 'email')) {
+                $table->string('email')->after('whatsapp');
+            }
+            if (!Schema::hasColumn('clients', 'adresse')) {
+                $table->string('adresse')->after('email');
+            }
+            if (!Schema::hasColumn('clients', 'ville')) {
+                $table->string('ville')->after('adresse');
+            }
+            if (!Schema::hasColumn('clients', 'contact_principal')) {
+                $table->string('contact_principal')->after('ville');
+            }
+            if (!Schema::hasColumn('clients', 'canal_acquisition')) {
+                $table->string('canal_acquisition')->after('contact_principal');
+            }
+            if (!Schema::hasColumn('clients', 'referent_commercial_id')) {
+                $table->unsignedBigInteger('referent_commercial_id')->nullable()->after('canal_acquisition');
+            }
+            if (!Schema::hasColumn('clients', 'type_relation')) {
+                $table->string('type_relation')->after('referent_commercial_id');
+            }
+            if (!Schema::hasColumn('clients', 'delai_paiement')) {
+                $table->integer('delai_paiement')->after('type_relation');
+            }
+            if (!Schema::hasColumn('clients', 'plafond_credit')) {
+                $table->decimal('plafond_credit', 15, 2)->after('delai_paiement');
+            }
+            if (!Schema::hasColumn('clients', 'mode_paiement_prefere')) {
+                $table->string('mode_paiement_prefere')->after('plafond_credit');
+            }
+            if (!Schema::hasColumn('clients', 'statut')) {
+                $table->string('statut')->after('mode_paiement_prefere');
+            }
+            if (!Schema::hasColumn('clients', 'categorie')) {
+                $table->string('categorie')->after('statut');
+            }
+            if (!Schema::hasColumn('clients', 'site_web')) {
+                $table->string('site_web')->nullable()->after('categorie');
+            }
+            if (!Schema::hasColumn('clients', 'notes')) {
+                $table->text('notes')->nullable()->after('site_web');
+            }
             
-            // Rétablir les contraintes étrangères
-            $table->foreign('company_id')->references('id')->on('companies')->onDelete('set null');
-            $table->foreign('agency_id')->references('id')->on('agencies')->onDelete('set null');
-            $table->foreign('referent_commercial_id')->references('id')->on('users')->onDelete('set null');
+            // Rétablir les contraintes étrangères seulement si elles n'existent pas
+            try {
+                $table->foreign('company_id')->references('id')->on('companies')->onDelete('set null');
+            } catch (\Exception $e) {
+                // La contrainte existe peut-être déjà
+            }
+            try {
+                $table->foreign('agency_id')->references('id')->on('agencies')->onDelete('set null');
+            } catch (\Exception $e) {
+                // La contrainte existe peut-être déjà
+            }
+            try {
+                $table->foreign('referent_commercial_id')->references('id')->on('users')->onDelete('set null');
+            } catch (\Exception $e) {
+                // La contrainte existe peut-être déjà
+            }
         });
     }
 
