@@ -21,7 +21,11 @@ class Contract extends Model
         'benefits',
         'contract_file',
         'hiring_form',
-        'supporting_documents'
+        'supporting_documents',
+        'status',
+        'termination_reason',
+        'terminated_at',
+        'terminated_by'
     ];
 
     protected $casts = [
@@ -31,7 +35,8 @@ class Contract extends Model
         'trial_period_end' => 'date',
         'benefits' => 'json',
         'supporting_documents' => 'json',
-        'base_salary' => 'decimal:2'
+        'base_salary' => 'decimal:2',
+        'terminated_at' => 'date'
     ];
 
     public function employee()
@@ -39,9 +44,15 @@ class Contract extends Model
         return $this->belongsTo(Employee::class);
     }
 
+    public function terminatedBy()
+    {
+        return $this->belongsTo(User::class, 'terminated_by');
+    }
+
     public function isActive()
     {
-        return $this->start_date <= now() && 
+        return $this->status === 'active' && 
+               $this->start_date <= now() && 
                ($this->end_date === null || $this->end_date >= now());
     }
 
@@ -52,5 +63,42 @@ class Contract extends Model
         }
 
         return now()->between($this->trial_period_start, $this->trial_period_end);
+    }
+
+    public function isTerminated()
+    {
+        return $this->status === 'terminated' && $this->terminated_at !== null;
+    }
+
+    public function getStatusBadgeClass()
+    {
+        switch ($this->status) {
+            case 'active':
+                return 'bg-success';
+            case 'pending':
+                return 'bg-warning';
+            case 'terminated':
+                return 'bg-danger';
+            case 'draft':
+                return 'bg-secondary';
+            default:
+                return 'bg-secondary';
+        }
+    }
+
+    public function getStatusText()
+    {
+        switch ($this->status) {
+            case 'active':
+                return 'Actif';
+            case 'pending':
+                return 'En attente';
+            case 'terminated':
+                return 'Résilié';
+            case 'draft':
+                return 'Brouillon';
+            default:
+                return ucfirst($this->status);
+        }
     }
 }

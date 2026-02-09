@@ -41,12 +41,9 @@ class ProductController extends Controller
 
         $product = Product::create([
             'name' => $request->input('name'),
-            'category_id' => $request->input('category_id'),
-            'created_at' => $request->input('created_at'),
-            'site' => $request->input('site'),
             'description' => $request->input('description'),
-            'functionality' => $request->input('functionality'),
-            'portfolio' =>  (bool)$request->input('portfolio'),
+            'quantite' => (int)$request->input('quantite', 0),
+            'prix_unitaire' => (float)$request->input('prix_unitaire', 0),
         ]);
 
         $files = $this->storeMultipleFiles($request, 'files', static::PRODUCT);
@@ -138,12 +135,9 @@ class ProductController extends Controller
 
             $product->update([
                 'name' => $request->input('name'),
-                'category_id' => $request->input('category_id'),
-                'created_at' => $request->input('created_at'),
-                'site' => $request->input('site'),
                 'description' => $request->input('description'),
-                'functionality' => $request->input('functionality'),
-                'portfolio' => $request->input('portfolio') ?? false,
+                'quantite' => (int)$request->input('quantite', $product->quantite),
+                'prix_unitaire' => (float)$request->input('prix_unitaire', $product->prix_unitaire),
             ]);
 
             Log::create(LogTypeEnum::UPDATE, "Modification du produit '$product->name'");

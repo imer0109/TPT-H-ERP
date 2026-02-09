@@ -13,7 +13,7 @@ class CashSessionController extends Controller
      public function open(Request $request, CashRegister $cashRegister)
     {
         if ($cashRegister->est_ouverte) {
-            return redirect()->route('cash.registers.show', $cashRegister)
+            return redirect()->route('cash.registers.show', ['cashRegister' => $cashRegister->id])
                 ->with('error', 'Cette caisse est déjà ouverte.');
         }
 
@@ -35,14 +35,14 @@ class CashSessionController extends Controller
             'solde_actuel' => $validated['solde_initial']
         ]);
 
-        return redirect()->route('cash.registers.show', $cashRegister)
+        return redirect()->route('cash.registers.show', ['cashRegister' => $cashRegister->id])
             ->with('success', 'Caisse ouverte avec succès.');
     }
 
     public function close(Request $request, CashRegister $cashRegister, CashSession $session)
     {
         if (!$cashRegister->est_ouverte || !$session->isOpen()) {
-            return redirect()->route('cash.registers.show', $cashRegister)
+            return redirect()->route('cash.registers.show', ['cashRegister' => $cashRegister->id])
                 ->with('error', 'Cette session de caisse est déjà fermée.');
         }
 
@@ -75,7 +75,7 @@ class CashSessionController extends Controller
             'solde_actuel' => $validated['solde_final']
         ]);
 
-        return redirect()->route('cash.registers.show', $cashRegister)
+        return redirect()->route('cash.registers.show', ['cashRegister' => $cashRegister->id])
             ->with('success', 'Caisse fermée avec succès.');
     }
 

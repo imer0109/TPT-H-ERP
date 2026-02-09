@@ -1,14 +1,13 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('content')
-<div class="container mx-auto px-4 py-6">
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-2xl font-bold text-gray-800">Détails de l'Interaction Client</h1>
         <div class="flex space-x-2">
             <a href="{{ route('client-interactions.index') }}" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded">
                 <i class="fas fa-arrow-left mr-2"></i> Retour à la liste
             </a>
-            <a href="{{ route('client-interactions.edit', $interaction->id) }}" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+            <a href="{{ route('client-interactions.edit', $interaction->id) }}" class="bg-primary-500 hover:bg-primary-600 text-white font-bold py-2 px-4 rounded">
                 <i class="fas fa-edit mr-2"></i> Modifier
             </a>
         </div>
@@ -35,7 +34,7 @@
                             <p class="text-sm font-medium text-gray-500">Type d'interaction</p>
                             <p class="text-base">
                                 @if($interaction->type_interaction == 'appel')
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800">
                                         <i class="fas fa-phone-alt mr-1"></i> Appel
                                     </span>
                                 @elseif($interaction->type_interaction == 'email')
@@ -68,7 +67,7 @@
                             <p class="text-base">{{ $interaction->user->name }}</p>
                         </div>
                         
-                        <div>
+                        <div> 
                             <p class="text-sm font-medium text-gray-500">Suivi nécessaire</p>
                             <p class="text-base">
                                 @if($interaction->suivi_necessaire)
@@ -151,7 +150,7 @@
                         <div class="flex items-center justify-between bg-white p-3 rounded-md shadow-sm">
                             <div class="flex items-center">
                                 @if(in_array(pathinfo($document->file_path, PATHINFO_EXTENSION), ['jpg', 'jpeg', 'png', 'gif']))
-                                    <i class="fas fa-file-image text-blue-500 mr-2"></i>
+                                    <i class="fas fa-file-image text-primary-500 mr-2"></i>
                                 @elseif(pathinfo($document->file_path, PATHINFO_EXTENSION) == 'pdf')
                                     <i class="fas fa-file-pdf text-red-500 mr-2"></i>
                                 @else
@@ -160,7 +159,7 @@
                                 <span class="text-sm truncate" title="{{ $document->original_name }}">{{ $document->original_name }}</span>
                             </div>
                             <div class="flex space-x-1">
-                                <a href="{{ route('documents.view', $document->id) }}" target="_blank" class="text-blue-500 hover:text-blue-700" title="Voir">
+                                <a href="{{ route('documents.view', $document->id) }}" target="_blank" class="text-primary-500 hover:text-primary-700" title="Voir">
                                     <i class="fas fa-eye"></i>
                                 </a>
                                 <a href="{{ route('documents.download', $document->id) }}" class="text-green-500 hover:text-green-700" title="Télécharger">
@@ -195,5 +194,4 @@
             </div>
         </div>
     </div>
-</div>
 @endsection

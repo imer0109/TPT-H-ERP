@@ -15,14 +15,10 @@ class ProductRequest extends ApiRequestDecorator
     public static function rules(): array
     {
         return [
-            "name" => ['required', 'string', 'unique:products,name'],
-            'category_id' => ['required', 'exists:categories,id'],
-            'created_at' => ['required', 'string'],
-            'site' => ['nullable', 'string'],
-            'description' => ['required', 'string'],
-            'functionality' => ['required', 'string'],
-            'files' => ['required', 'array', 'max:5'],
-            'files.*' => ['image', 'max:5120', 'mimes:jpeg,png,jpg'],
+            'name' => ['required', 'string', 'unique:products,name'],
+            'description' => ['nullable', 'string'],
+            'quantite' => ['required', 'integer', 'min:0'],
+            'prix_unitaire' => ['required', 'numeric', 'min:0'],
         ];
     }
 
@@ -33,13 +29,9 @@ class ProductRequest extends ApiRequestDecorator
     {
         return [
             'name' => "Le nom du produit",
-            'category_id' => "La catégorie du produit",
-            'created_at' => "L'année de création du produit",
-            'site' => "Le site du produit",
             'description' => "La description du produit",
-            'functionality' => "La fonctionnalité du produit",
-            'files' => "Les fichiers images",
-            'files.*' => "Le fichier image",
+            'quantite' => "La quantité du produit",
+            'prix_unitaire' => "Le prix unitaire du produit",
         ];
     }
 }

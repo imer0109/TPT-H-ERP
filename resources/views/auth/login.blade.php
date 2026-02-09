@@ -1,88 +1,121 @@
 <!DOCTYPE html>
-<html lang="fr">
-
+<html lang="fr" class="h-full bg-gray-50">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>CONNEXION - TPT-H ERP</title>
+    <title>Connexion | TPT-H ERP</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
 </head>
+<body class="h-full flex flex-col justify-center py-12 sm:px-6 lg:px-8 bg-slate-50">
+    <div class="sm:mx-auto sm:w-full sm:max-w-md">
+        <!-- Logo ou Icone -->
+        <div class="mx-auto h-12 w-12 bg-primary-600 rounded-xl flex items-center justify-center shadow-lg transform rotate-3 mb-4">
+            <svg class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+            </svg>
+        </div>
+        <h2 class="mt-2 text-center text-3xl font-extrabold text-gray-900 tracking-tight">
+            TPT-H ERP
+        </h2>
+        <p class="mt-2 text-center text-sm text-gray-600">
+            Connectez-vous à votre espace de gestion
+        </p>
+    </div>
 
-<body class="bg-gradient-to-br from-gray-100 via-white to-gray-50">
-    <div class="min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8">
-        <div class="w-full max-w-md bg-white p-8 rounded-2xl shadow-lg space-y-6">
-            <!-- Logo et Titre -->
-            <div class="text-center">
-                <div class="flex items-center justify-center space-x-1">
-                    <img class="h-16 w-auto" src="/images/logo-tpt.png" alt="TPT-H ERP">
-                    <span class="text-2xl font-bold text-gray-800">TPT-H ERP</span>
-                </div>
-                <h2 class="mt-4 text-2xl font-bold text-gray-800">
-                    Connexion à votre compte
-                </h2>
-                <p class="text-gray-500 text-sm mt-1">Veuillez entrer vos informations</p>
-            </div>
-
-            <!-- Messages d'erreurs -->
+    <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+        <div class="bg-white py-8 px-4 shadow-xl shadow-slate-200/50 sm:rounded-2xl sm:px-10 border border-gray-100">
+            
             @if ($errors->any())
-                <div class="bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded-lg text-sm" role="alert">
-                    <ul class="list-disc pl-4">
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
+                <div class="mb-6 rounded-lg bg-red-50 p-4 border border-red-100">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-sm font-medium text-red-800">Erreur de connexion</h3>
+                            <div class="mt-2 text-sm text-red-700">
+                                <ul role="list" class="list-disc pl-5 space-y-1">
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             @endif
 
-            <!-- Formulaire -->
-            <form class="space-y-5" action="{{ route('login') }}" method="POST">
+            <form class="space-y-6" action="{{ route('login') }}" method="POST">
                 @csrf
-                <div class="space-y-3">
-                    <!-- Email -->
-                    <div>
-                        <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Adresse email</label>
-                        <input id="email" name="email" type="email" autocomplete="email" required
-                            class="block w-full px-4 py-2 text-gray-800 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 sm:text-sm transition"
-                            placeholder="exemple@email.com" value="{{ old('email') }}">
-                    </div>
-                    <!-- Mot de passe -->
-                    <div>
-                        <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Mot de passe</label>
-                        <input id="password" name="password" type="password" autocomplete="current-password" required
-                            class="block w-full px-4 py-2 text-gray-800 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 sm:text-sm transition"
-                            placeholder="Votre mot de passe">
-                    </div>
-                </div>
-
-                <!-- Options -->
-                <div class="flex items-center justify-between text-sm">
-                    <label class="flex items-center">
-                        <input id="remember" name="remember" type="checkbox"
-                            class="h-4 w-4 text-red-600 border-gray-300 rounded focus:ring-red-500">
-                        <span class="ml-2 text-gray-700">Se souvenir de moi</span>
+                
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700">
+                        Adresse email
                     </label>
-                    <a href="{{ route('password.request') }}" class="text-red-600 hover:underline font-medium">
-                        Mot de passe oublié ?
-                    </a>
+                    <div class="mt-1">
+                        <input id="email" name="email" type="email" autocomplete="email" required value="{{ old('email') }}"
+                            class="appearance-none block w-full px-3 py-2.5 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm transition-colors duration-200">
+                    </div>
                 </div>
 
-                <!-- Bouton -->
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-700">
+                        Mot de passe
+                    </label>
+                    <div class="mt-1 relative rounded-md shadow-sm">
+                        <input id="password" name="password" type="password" autocomplete="current-password" required
+                            class="appearance-none block w-full px-3 py-2.5 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm transition-colors duration-200">
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <input id="remember" name="remember" type="checkbox"
+                            class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded transition duration-150 ease-in-out">
+                        <label for="remember" class="ml-2 block text-sm text-gray-900">
+                            Se souvenir de moi
+                        </label>
+                    </div>
+
+                    <div class="text-sm">
+                        <a href="{{ route('password.request') }}" class="font-medium text-primary-600 hover:text-primary-500 transition-colors">
+                            Mot de passe oublié ?
+                        </a>
+                    </div>
+                </div>
+
                 <div>
                     <button type="submit"
-                        class="w-full flex items-center justify-center gap-2 py-2 px-4 bg-red-600 text-white font-medium text-sm rounded-lg shadow hover:bg-red-700 focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition">
-                        <svg class="h-5 w-5 text-red-100" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
-                            viewBox="0 0 20 20">
-                            <path fill-rule="evenodd"
-                                d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
-                                clip-rule="evenodd" />
-                        </svg>
+                        class="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-200 transform hover:scale-[1.02]">
                         Se connecter
                     </button>
                 </div>
             </form>
+
+            <div class="mt-6">
+                <div class="relative">
+                    <div class="absolute inset-0 flex items-center">
+                        <div class="w-full border-t border-gray-300"></div>
+                    </div>
+                    <div class="relative flex justify-center text-sm">
+                        <span class="px-2 bg-white text-gray-500">
+                            Sécurisé par TPT-H
+                        </span>
+                    </div>
+                </div>
+            </div>
         </div>
+        
+        <p class="mt-8 text-center text-xs text-gray-500">
+            &copy; {{ date('Y') }} TPT International. Tous droits réservés.
+        </p>
     </div>
 </body>
-
 </html>

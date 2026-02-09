@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
@@ -11,7 +11,7 @@ use Laravel\Sanctum\HasApiTokens;
 
 class Client extends Model
 {
-    use HasFactory, HasApiTokens, HasUuids, SoftDeletes;
+    use HasFactory, HasApiTokens, SoftDeletes;
 
     protected $fillable = [
         'code_client',
@@ -23,6 +23,7 @@ class Client extends Model
         'whatsapp',
         'email',
         'adresse',
+        'ville',
         'contact_principal',
         'canal_acquisition', // commerce direct, web, recommandé, etc.
         'referent_commercial_id', // utilisateur interne
@@ -32,6 +33,8 @@ class Client extends Model
         'mode_paiement_prefere',
         'statut', // actif, inactif, suspendu
         'categorie', // Or, Argent, Bronze
+        'site_web',
+        'notes',
     ];
 
     protected $casts = [
@@ -80,6 +83,16 @@ class Client extends Model
         return $this->hasMany(ClientInteraction::class);
     }
 
+    public function integrations()
+    {
+        return $this->hasMany(ClientIntegration::class);
+    }
+
+    public function loyaltyCard()
+    {
+        return $this->hasOne(LoyaltyCard::class);
+    }
+
     // Méthode pour générer un code client unique
     public static function generateUniqueCode()
     {
@@ -99,24 +112,44 @@ class Client extends Model
     // Méthode pour calculer l'encours client
     public function getEncours()
     {
-        // Logique pour calculer l'encours client
-        // À implémenter selon la structure des transactions
-        return $this->transactions()->where('type', 'encaissement')->sum('montant');
+        // Calculer le montant total dû par le client
+        $totalEncaissements = $this->transactions()->where('type', 'encaissement')->sum('montant');
+        $totalDecaissements = $this->transactions()->where('type', 'decaissement')->sum('montant');
+        return $totalEncaissements - $totalDecaissements;
     }
 
     // Méthode pour obtenir le délai moyen de règlement
     public function getDelaiMoyenReglement()
     {
-        // Logique pour calculer le délai moyen de règlement
-        // À implémenter selon la structure des transactions
-        return 0;
+        // Calculer le délai moyen de règlement
+        $transactions = $this->transactions()->where('type', 'encaissement')->get();
+        
+        if ($transactions->isEmpty()) {
+            return 0;
+        }
+        
+        $totalDays = 0;
+        $count = 0;
+        
+        foreach ($transactions as $transaction) {
+            // Pour simplifier, nous utilisons la date de création comme date d'émission
+            // et la date actuelle comme date de paiement
+            $days = $transaction->created_at->diffInDays(now());
+            $totalDays += $days;
+            $count++;
+        }
+        
+        return $count > 0 ? round($totalDays / $count, 2) : 0;
     }
 
     // Méthode pour obtenir le nombre de factures impayées
     public function getNombreFacturesImpayees()
     {
-        // Logique pour calculer le nombre de factures impayées
-        // À implémenter selon la structure des transactions
-        return 0;
+        // Compter le nombre de transactions impayées (encaissements sans décaissements correspondants)
+        // Pour simplifier, nous considérons comme impayée toute transaction de plus de 30 jours
+        return $this->transactions()
+            ->where('type', 'encaissement')
+            ->where('created_at', '<=', now()->subDays(30))
+            ->count();
     }
 }

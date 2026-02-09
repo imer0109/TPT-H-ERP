@@ -30,15 +30,16 @@
                                 </div>
                                 
                                 <div class="form-group">
-                                    <label for="contract_type">Type de Contrat</label>
-                                    <select name="contract_type" id="contract_type" class="form-control @error('contract_type') is-invalid @enderror" required>
+                                    <label for="type">Type de Contrat</label>
+                                    <select name="type" id="type" class="form-control @error('type') is-invalid @enderror" required>
                                         <option value="">Sélectionner un type</option>
-                                        <option value="CDI" {{ old('contract_type', $contract->contract_type) == 'CDI' ? 'selected' : '' }}>CDI</option>
-                                        <option value="CDD" {{ old('contract_type', $contract->contract_type) == 'CDD' ? 'selected' : '' }}>CDD</option>
-                                        <option value="Stage" {{ old('contract_type', $contract->contract_type) == 'Stage' ? 'selected' : '' }}>Stage</option>
-                                        <option value="Intérim" {{ old('contract_type', $contract->contract_type) == 'Intérim' ? 'selected' : '' }}>Intérim</option>
+                                        <option value="CDI" {{ old('type', $contract->type) == 'CDI' ? 'selected' : '' }}>CDI</option>
+                                        <option value="CDD" {{ old('type', $contract->type) == 'CDD' ? 'selected' : '' }}>CDD</option>
+                                        <option value="Stage" {{ old('type', $contract->type) == 'Stage' ? 'selected' : '' }}>Stage</option>
+                                        <option value="Prestation" {{ old('type', $contract->type) == 'Prestation' ? 'selected' : '' }}>Prestation</option>
+                                        <option value="Intérim" {{ old('type', $contract->type) == 'Intérim' ? 'selected' : '' }}>Intérim</option>
                                     </select>
-                                    @error('contract_type')
+                                    @error('type')
                                         <span class="invalid-feedback">{{ $message }}</span>
                                     @enderror
                                 </div>
@@ -58,21 +59,50 @@
                                         <span class="invalid-feedback">{{ $message }}</span>
                                     @enderror
                                 </div>
+                                
+                                <div class="form-group">
+                                    <label for="status">Statut</label>
+                                    <select name="status" id="status" class="form-control @error('status') is-invalid @enderror" required>
+                                        <option value="draft" {{ old('status', $contract->status) == 'draft' ? 'selected' : '' }}>Brouillon</option>
+                                        <option value="pending" {{ old('status', $contract->status) == 'pending' ? 'selected' : '' }}>En attente</option>
+                                        <option value="active" {{ old('status', $contract->status) == 'active' ? 'selected' : '' }}>Actif</option>
+                                        <option value="terminated" {{ old('status', $contract->status) == 'terminated' ? 'selected' : '' }}>Résilié</option>
+                                    </select>
+                                    @error('status')
+                                        <span class="invalid-feedback">{{ $message }}</span>
+                                    @enderror
+                                </div>
                             </div>
 
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="base_salary">Salaire de Base</label>
-                                    <input type="number" name="base_salary" id="base_salary" class="form-control @error('base_salary') is-invalid @enderror" value="{{ old('base_salary', $contract->base_salary) }}" required>
+                                    <input type="number" step="0.01" name="base_salary" id="base_salary" class="form-control @error('base_salary') is-invalid @enderror" value="{{ old('base_salary', $contract->base_salary) }}" required>
                                     @error('base_salary')
                                         <span class="invalid-feedback">{{ $message }}</span>
                                     @enderror
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="trial_period">Période d'Essai (en mois)</label>
-                                    <input type="number" name="trial_period" id="trial_period" class="form-control @error('trial_period') is-invalid @enderror" value="{{ old('trial_period', $contract->trial_period) }}">
-                                    @error('trial_period')
+                                    <label for="trial_period_months">Période d'Essai (en mois)</label>
+                                    <input type="number" name="trial_period_months" id="trial_period_months" class="form-control @error('trial_period_months') is-invalid @enderror" value="{{ old('trial_period_months') }}">
+                                    @error('trial_period_months')
+                                        <span class="invalid-feedback">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="trial_period_start">Début de la Période d'Essai</label>
+                                    <input type="date" name="trial_period_start" id="trial_period_start" class="form-control @error('trial_period_start') is-invalid @enderror" value="{{ old('trial_period_start', $contract->trial_period_start ? $contract->trial_period_start->format('Y-m-d') : '') }}">
+                                    @error('trial_period_start')
+                                        <span class="invalid-feedback">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="trial_period_end">Fin de la Période d'Essai</label>
+                                    <input type="date" name="trial_period_end" id="trial_period_end" class="form-control @error('trial_period_end') is-invalid @enderror" value="{{ old('trial_period_end', $contract->trial_period_end ? $contract->trial_period_end->format('Y-m-d') : '') }}">
+                                    @error('trial_period_end')
                                         <span class="invalid-feedback">{{ $message }}</span>
                                     @enderror
                                 </div>
@@ -100,8 +130,36 @@
                                         <span class="invalid-feedback">{{ $message }}</span>
                                     @enderror
                                 </div>
+                                
+                                <div class="form-group">
+                                    <label for="hiring_form">Fiche d'Embauche</label>
+                                    @if($contract->hiring_form)
+                                        <div class="mb-2">
+                                            <a href="{{ Storage::url($contract->hiring_form) }}" target="_blank" class="btn btn-sm btn-info">
+                                                <i class="fas fa-download"></i> Fiche actuelle
+                                            </a>
+                                        </div>
+                                    @endif
+                                    <input type="file" name="hiring_form" id="hiring_form" class="form-control-file @error('hiring_form') is-invalid @enderror" accept=".pdf,.doc,.docx">
+                                    <small class="form-text text-muted">Laissez vide pour conserver la fiche actuelle</small>
+                                    @error('hiring_form')
+                                        <span class="invalid-feedback">{{ $message }}</span>
+                                    @enderror
+                                </div>
                             </div>
                         </div>
+                        
+                        @if($contract->status === 'terminated')
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="alert alert-warning">
+                                    <h5><i class="fas fa-exclamation-triangle"></i> Contrat Résilié</h5>
+                                    <p><strong>Date de résiliation :</strong> {{ $contract->terminated_at->format('d/m/Y') }}</p>
+                                    <p><strong>Raison :</strong> {{ $contract->termination_reason }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        @endif
                     </div>
                     <div class="card-footer">
                         <button type="submit" class="btn btn-primary">Mettre à jour</button>
@@ -115,7 +173,7 @@
 
 @push('scripts')
 <script>
-document.getElementById('contract_type').addEventListener('change', function() {
+document.getElementById('type').addEventListener('change', function() {
     const endDateField = document.getElementById('end_date');
     if (this.value === 'CDI') {
         endDateField.removeAttribute('required');
@@ -125,8 +183,35 @@ document.getElementById('contract_type').addEventListener('change', function() {
     }
 });
 
+// Auto-calculate trial period end date
+document.getElementById('trial_period_start').addEventListener('change', function() {
+    const startDate = this.value;
+    const trialMonths = document.getElementById('trial_period_months').value;
+    
+    if (startDate && trialMonths) {
+        const endDate = new Date(startDate);
+        endDate.setMonth(endDate.getMonth() + parseInt(trialMonths));
+        
+        const formattedDate = endDate.toISOString().split('T')[0];
+        document.getElementById('trial_period_end').value = formattedDate;
+    }
+});
+
+document.getElementById('trial_period_months').addEventListener('change', function() {
+    const startDate = document.getElementById('trial_period_start').value;
+    const trialMonths = this.value;
+    
+    if (startDate && trialMonths) {
+        const endDate = new Date(startDate);
+        endDate.setMonth(endDate.getMonth() + parseInt(trialMonths));
+        
+        const formattedDate = endDate.toISOString().split('T')[0];
+        document.getElementById('trial_period_end').value = formattedDate;
+    }
+});
+
 // Déclencher l'événement au chargement pour initialiser correctement
-document.getElementById('contract_type').dispatchEvent(new Event('change'));
+document.getElementById('type').dispatchEvent(new Event('change'));
 </script>
 @endpush
 @endsection

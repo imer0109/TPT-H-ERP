@@ -1,126 +1,141 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('title', 'Inventaires de Stock')
 
 @section('content')
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Inventaires de Stock</h3>
-                    <div class="card-tools">
-                        <a href="{{ route('stock.inventories.create') }}" class="btn btn-primary btn-sm">
-                            <i class="fas fa-plus"></i> Nouvel Inventaire
-                        </a>
+<div class="max-w-7xl mx-auto px-4 py-6">
+    <div class="bg-white shadow-lg rounded-lg">
+        <!-- Header -->
+        <div class="flex justify-between items-center border-b px-6 py-4">
+            <h3 class="text-lg font-semibold">Inventaires de Stock</h3>
+            <a href="{{ route('stock.inventories.create') }}" 
+               class="inline-flex items-center px-3 py-2 bg-primary-600 text-white text-sm font-medium rounded-md hover:bg-primary-700">
+                <i class="fas fa-plus mr-2"></i> Nouvel Inventaire
+            </a>
+        </div>
+
+        <div class="p-6">
+            <!-- Formulaire de filtre -->
+            <form action="{{ route('stock.inventories.index') }}" method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <!-- Statut -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Statut</label>
+                    <select name="status" 
+                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 
+                                   focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 sm:text-sm">
+                        <option value="">Tous</option>
+                        <option value="en_cours" {{ request('status') == 'en_cours' ? 'selected' : '' }}>En cours</option>
+                        <option value="valide" {{ request('status') == 'valide' ? 'selected' : '' }}>Validé</option>
+                    </select>
+                </div>
+
+                <!-- Dépôt -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Dépôt</label>
+                    <select name="warehouse_id" 
+                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 
+                                   focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 sm:text-sm">
+                        <option value="">Tous</option>
+                        @foreach($warehouses as $id => $name)
+                                <option value="{{ $id }}" {{ old('warehouse_id') == $id ? 'selected' : '' }}>
+                                    {{ $name }}
+                                </option>
+                            @endforeach
+                    </select>
+                </div>
+
+                <!-- Période -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Période</label>
+                    <div class="flex items-center gap-2 mt-1">
+                        <input type="date" name="date_start" value="{{ request('date_start') }}"
+                               class="block w-1/2 border border-gray-300 rounded-md shadow-sm px-2 py-2 
+                                      focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 sm:text-sm">
+                        <span class="text-gray-500">à</span>
+                        <input type="date" name="date_end" value="{{ request('date_end') }}"
+                               class="block w-1/2 border border-gray-300 rounded-md shadow-sm px-2 py-2 
+                                      focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 sm:text-sm">
                     </div>
                 </div>
-                <div class="card-body">
-                    <form action="{{ route('stock.inventories.index') }}" method="GET" class="mb-4">
-                        <div class="row">
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <label>Statut</label>
-                                    <select name="status" class="form-control">
-                                        <option value="">Tous</option>
-                                        <option value="en_cours" {{ request('status') == 'en_cours' ? 'selected' : '' }}>En cours</option>
-                                        <option value="valide" {{ request('status') == 'valide' ? 'selected' : '' }}>Validé</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <label>Dépôt</label>
-                                    <select name="warehouse_id" class="form-control">
-                                        <option value="">Tous</option>
-                                        @foreach($warehouses as $id => $name)
-                                            <option value="{{ $id }}" {{ request('warehouse_id') == $id ? 'selected' : '' }}>{{ $name }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <label>Période</label>
-                                    <div class="input-group">
-                                        <input type="date" name="date_start" class="form-control" value="{{ request('date_start') }}">
-                                        <div class="input-group-append">
-                                            <span class="input-group-text">à</span>
-                                        </div>
-                                        <input type="date" name="date_end" class="form-control" value="{{ request('date_end') }}">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <label>&nbsp;</label>
-                                    <button type="submit" class="btn btn-primary form-control">Filtrer</button>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                    
-                    <div class="table-responsive">
-                        <table class="table table-bordered table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Référence</th>
-                                    <th>Date</th>
-                                    <th>Dépôt</th>
-                                    <th>Statut</th>
-                                    <th>Créé par</th>
-                                    <th>Validé par</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse($inventories as $inventory)
-                                    <tr>
-                                        <td>{{ $inventory->reference }}</td>
-                                        <td>{{ $inventory->date->format('d/m/Y') }}</td>
-                                        <td>{{ $inventory->warehouse->nom }}</td>
-                                        <td>
-                                            @if($inventory->status == 'en_cours')
-                                                <span class="badge badge-warning">En cours</span>
-                                            @elseif($inventory->status == 'valide')
-                                                <span class="badge badge-success">Validé</span>
-                                            @endif
-                                        </td>
-                                        <td>{{ $inventory->createdBy->name }}</td>
-                                        <td>{{ $inventory->validatedBy->name ?? '-' }}</td>
-                                        <td>
-                                            <a href="{{ route('stock.inventories.show', $inventory) }}" class="btn btn-info btn-sm">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
-                                            
-                                            @if($inventory->status == 'en_cours')
-                                                <a href="{{ route('stock.inventories.edit', $inventory) }}" class="btn btn-primary btn-sm">
-                                                    <i class="fas fa-edit"></i>
-                                                </a>
-                                                
-                                                <form action="{{ route('stock.inventories.validate', $inventory) }}" method="POST" class="d-inline">
-                                                    @csrf
-                                                    @method('PATCH')
-                                                    <button type="submit" class="btn btn-success btn-sm" onclick="return confirm('Êtes-vous sûr de vouloir valider cet inventaire?')">
-                                                        <i class="fas fa-check"></i>
-                                                    </button>
-                                                </form>
-                                            @endif
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="7" class="text-center">Aucun inventaire trouvé</td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-                    
-                    <div class="mt-3">
-                        {{ $inventories->appends(request()->query())->links() }}
-                    </div>
+
+                <!-- Bouton Filtrer -->
+                <div class="flex items-end">
+                    <button type="submit" 
+                            class="w-full px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700">
+                        Filtrer
+                    </button>
                 </div>
+            </form>
+
+            <!-- Tableau -->
+            <div class="overflow-x-auto">
+                <table class="min-w-full border border-gray-200 divide-y divide-gray-200 text-sm">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="px-4 py-2 text-left font-medium text-gray-700">Référence</th>
+                            <th class="px-4 py-2 text-left font-medium text-gray-700">Date</th>
+                            <th class="px-4 py-2 text-left font-medium text-gray-700">Dépôt</th>
+                            <th class="px-4 py-2 text-left font-medium text-gray-700">Statut</th>
+                            <th class="px-4 py-2 text-left font-medium text-gray-700">Créé par</th>
+                            <th class="px-4 py-2 text-left font-medium text-gray-700">Validé par</th>
+                            <th class="px-4 py-2 text-center font-medium text-gray-700">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        @forelse($inventories as $inventory)
+                            <tr>
+                                <td class="px-4 py-2">{{ $inventory->reference }}</td>
+                                <td class="px-4 py-2">{{ $inventory->date->format('d/m/Y') }}</td>
+                                <td class="px-4 py-2">{{ $inventory->warehouse ? $inventory->warehouse->name : 'N/A' }}</td>
+                                <td class="px-4 py-2">
+                                    @if($inventory->status == 'en_cours')
+                                        <span class="px-2 py-1 text-xs font-semibold rounded bg-yellow-100 text-yellow-800">
+                                            En cours
+                                        </span>
+                                    @elseif($inventory->status == 'valide')
+                                        <span class="px-2 py-1 text-xs font-semibold rounded bg-green-100 text-green-800">
+                                            Validé
+                                        </span>
+                                    @endif
+                                </td>
+                                <td class="px-4 py-2">{{ $inventory->createdBy->name }}</td>
+                                <td class="px-4 py-2">{{ $inventory->validatedBy->name ?? '-' }}</td>
+                                <td class="px-4 py-2 flex justify-center gap-2">
+                                    <a href="{{ route('stock.inventories.show', $inventory) }}" 
+                                       class="px-2 py-1 bg-primary-500 text-white rounded hover:bg-primary-600">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+
+                                    @if($inventory->status == 'en_cours')
+                                        <a href="{{ route('stock.inventories.edit', $inventory) }}" 
+                                           class="px-2 py-1 bg-indigo-500 text-white rounded hover:bg-indigo-600">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+
+                                        <form action="{{ route('stock.inventories.validate', $inventory) }}" method="POST" class="inline">
+                                            @csrf
+                                            @method('PATCH')
+                                            <button type="submit" 
+                                                    class="px-2 py-1 bg-green-500 text-white rounded hover:bg-green-600"
+                                                    onclick="return confirm('Êtes-vous sûr de vouloir valider cet inventaire?')">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                        </form>
+                                    @endif
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="7" class="px-4 py-4 text-center text-gray-500">Aucun inventaire trouvé</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="mt-4">
+                {{ $inventories->appends(request()->query())->links() }}
             </div>
         </div>
     </div>

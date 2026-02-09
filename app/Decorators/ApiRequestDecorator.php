@@ -7,11 +7,11 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Validator;
 
 /**
- * @author SOSSOU-GAH Ézéchiel
- * @package Covoiturage
- * @created 2024-08-18
+ * @author ZANOU Koffi Rémi
+ * @packtpy TPTH - ERP
+ * @created 2025-12-24
  *
- * Classe abstraite ApiRequestDecorator
+ * Classe abstraite ApiRequestDecoratoru
  *
  * Cette classe implémente l'interface ApiRequestInterface et fournit des implémentations
  * par défaut pour les méthodes définies dans cette interface. Elle utilise le pattern

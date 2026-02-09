@@ -6,6 +6,27 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\Response as ResponseAlias;
 
+// Human readable file size helper
+if (!function_exists('human_filesize')) {
+    /**
+     * Convert bytes to human readable format
+     *
+     * @param integer $bytes Size in bytes to convert
+     * @param integer $precision Number of decimal places to display
+     * @return string
+     */
+    function human_filesize($bytes, $precision = 2)
+    {
+        $units = array('B', 'KB', 'MB', 'GB', 'TB', 'PB');
+        
+        for ($i = 0; $bytes > 1024 && $i < count($units) - 1; $i++) {
+            $bytes /= 1024;
+        }
+        
+        return round($bytes, $precision) . ' ' . $units[$i];
+    }
+}
+
 if (!function_exists('__200')) {
 
 	/**
@@ -33,7 +54,7 @@ if (!function_exists('__200')) {
 	 * @author SOSSOU-GAH Ézéchiel
 	 * @created 2024-07-10
 	 */
-	function __200(string $message = 'No special message for this response', array $data = null, bool $spread = true, string $dataKey = 'data', bool $isEmpty = false): Response|ResponseFactory
+	function __200(string $message = 'No special message for this response', ?array $data = null, bool $spread = true, string $dataKey = 'data', bool $isEmpty = false): Response|ResponseFactory
 	{
 		if ($isEmpty) {
 			return response()->noContent(ResponseAlias::HTTP_OK);
@@ -156,7 +177,7 @@ if (!function_exists('__500')) {
 	 * @author SOSSOU-GAH Ézéchiel
 	 * @created 2024-07-10
 	 */
-	function __500(array|string $message = null): Response|ResponseFactory
+	function __500(array|string|null $message = null): Response|ResponseFactory
 	{
 		$content = [
 			'status' => 'failed',

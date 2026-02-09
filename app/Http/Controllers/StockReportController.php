@@ -30,7 +30,7 @@ class StockReportController extends Controller
         if ($request->has('search') && $request->search) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
-                $q->where('nom', 'like', "%{$search}%")
+                $q->where('name', 'like', "%{$search}%")
                   ->orWhere('reference', 'like', "%{$search}%")
                   ->orWhere('description', 'like', "%{$search}%");
             });
@@ -68,7 +68,7 @@ class StockReportController extends Controller
         
         $movements = $query->orderBy('created_at', 'desc')->paginate(15);
         $warehouses = Warehouse::where('actif', true)->pluck('nom', 'id');
-        $products = Product::where('actif', true)->pluck('nom', 'id');
+        $products = Product::where('actif', true)->pluck('name', 'id');
         
         return view('stock.reports.movements-history', compact('movements', 'warehouses', 'products'));
     }
@@ -80,11 +80,11 @@ class StockReportController extends Controller
         $query = DB::table('products')
             ->select(
                 'products.id',
-                'products.nom',
+                'products.name as nom',
                 'products.reference',
-                'products.prix_achat',
-                'products.stock_actuel',
-                DB::raw('products.prix_achat * products.stock_actuel as valeur_stock')
+                'products.prix_unitaire as prix_achat',
+                'products.quantite as stock_actuel',
+                DB::raw('products.prix_unitaire * products.quantite as valeur_stock')
             )
             ->where('products.actif', true);
         
@@ -94,16 +94,16 @@ class StockReportController extends Controller
             $query = DB::table('stock_movements')
                 ->select(
                     'products.id',
-                    'products.nom',
+                    'products.name as nom',
                     'products.reference',
-                    'products.prix_achat',
+                    'products.prix_unitaire as prix_achat',
                     DB::raw('SUM(CASE WHEN stock_movements.type = "entree" THEN stock_movements.quantite ELSE -stock_movements.quantite END) as stock_actuel'),
-                    DB::raw('products.prix_achat * SUM(CASE WHEN stock_movements.type = "entree" THEN stock_movements.quantite ELSE -stock_movements.quantite END) as valeur_stock')
+                    DB::raw('products.prix_unitaire * SUM(CASE WHEN stock_movements.type = "entree" THEN stock_movements.quantite ELSE -stock_movements.quantite END) as valeur_stock')
                 )
                 ->join('products', 'stock_movements.product_id', '=', 'products.id')
                 ->where('stock_movements.warehouse_id', $warehouseId)
                 ->where('products.actif', true)
-                ->groupBy('products.id', 'products.nom', 'products.reference', 'products.prix_achat');
+                ->groupBy('products.id', 'products.name', 'products.reference', 'products.prix_unitaire');
         }
         
         $products = $query->paginate(15);

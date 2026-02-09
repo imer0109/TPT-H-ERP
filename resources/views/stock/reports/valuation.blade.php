@@ -69,19 +69,20 @@
                                     <tr>
                                         <td>{{ $product->reference }}</td>
                                         <td>{{ $product->nom }}</td>
+                                        <td>{{ $product->category->name ?? 'Non catégorisé' }}</td>
                                         <td class="text-right">{{ number_format($product->prix_achat, 2) }}</td>
                                         <td class="text-right">{{ number_format($product->stock_actuel, 2) }}</td>
                                         <td class="text-right">{{ number_format($product->valeur_stock, 2) }}</td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="5" class="text-center">Aucun produit trouvé</td>
+                                        <td colspan="6" class="text-center">Aucun produit trouvé</td>
                                     </tr>
                                 @endforelse
                             </tbody>
                             <tfoot>
                                 <tr>
-                                    <th colspan="4" class="text-right">Valeur Totale du Stock:</th>
+                                    <th colspan="5" class="text-right">Valeur Totale du Stock:</th>
                                     <th class="text-right">{{ number_format($totalValuation, 2) }}</th>
                                 </tr>
                             </tfoot>

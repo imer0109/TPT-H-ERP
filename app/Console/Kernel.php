@@ -11,5 +11,20 @@ class Kernel extends ConsoleKernel
     {
         // Vérifier les niveaux de stock toutes les heures
         $schedule->command('stock:check-levels')->hourly();
+        
+        // Send supplier notifications daily
+        $schedule->command('suppliers:send-notifications')->dailyAt('09:00');
+    }
+    
+    /**
+     * Register the commands for the application.
+     *
+     * @return void
+     */
+    protected function commands()
+    {
+        $this->load(__DIR__.'/Commands');
+
+        require base_path('routes/console.php');
     }
 }

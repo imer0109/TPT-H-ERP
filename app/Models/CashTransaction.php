@@ -1,14 +1,14 @@
 <?php
 
 namespace App\Models;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-
 class CashTransaction extends Model
 {
-     use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'cash_register_id',
@@ -24,12 +24,17 @@ class CashTransaction extends Model
         'projet',
         'champs_personnalises',
         'validateur_id',
-        'date_validation'
+        'date_validation',
+        'validation_request_id',
+        'status',
+        'rejection_reason',
+        'validated_at'
     ];
 
     protected $casts = [
         'montant' => 'decimal:2',
         'date_validation' => 'datetime',
+        'validated_at' => 'datetime',
         'champs_personnalises' => 'json'
     ];
 
@@ -63,9 +68,29 @@ class CashTransaction extends Model
         return $this->morphTo();
     }
 
+    public function validationRequest()
+    {
+        return $this->belongsTo(ValidationRequest::class);
+    }
+
     public function isValidated()
     {
         return !is_null($this->validateur_id) && !is_null($this->date_validation);
+    }
+
+    public function isApproved()
+    {
+        return $this->status === 'approved';
+    }
+
+    public function isRejected()
+    {
+        return $this->status === 'rejected';
+    }
+
+    public function isPending()
+    {
+        return $this->status === 'pending';
     }
 
     public function generateTransactionNumber()

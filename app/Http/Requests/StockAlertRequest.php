@@ -19,7 +19,7 @@ class StockAlertRequest extends FormRequest
             'minimum_threshold' => ['required', 'numeric', 'min:0'],
             'security_threshold' => ['required', 'numeric', 'min:0', 'gte:minimum_threshold'],
             'is_active' => ['boolean'],
-            'email_notifications' => ['boolean'],
+            'email_notification' => ['boolean'], // Changed from email_notifications to match DB column
         ];
     }
 
@@ -44,7 +44,7 @@ class StockAlertRequest extends FormRequest
     {
         $this->merge([
             'is_active' => $this->boolean('is_active'),
-            'email_notifications' => $this->boolean('email_notifications'),
+            'email_notification' => $this->boolean('email_notification'), // Changed from email_notifications
         ]);
     }
 }

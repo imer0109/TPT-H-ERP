@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('content')
 <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -20,15 +20,15 @@
 
     <div class="bg-white shadow overflow-hidden sm:rounded-lg">
         <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
+            <thead class="bg-primary-50">
                 <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Caisse</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date d'ouverture</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date de fermeture</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Solde initial</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Solde final</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-primary-700 uppercase tracking-wider">Caisse</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-primary-700 uppercase tracking-wider">Date d'ouverture</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-primary-700 uppercase tracking-wider">Date de fermeture</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-primary-700 uppercase tracking-wider">Solde initial</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-primary-700 uppercase tracking-wider">Solde final</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-primary-700 uppercase tracking-wider">Statut</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-primary-700 uppercase tracking-wider">Actions</th>
                 </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
@@ -61,7 +61,7 @@
                         @endif
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <a href="{{ route('cash-sessions.show', $session) }}" class="text-blue-600 hover:text-blue-900 mr-3">Détails</a>
+                        <a href="{{ route('cash-sessions.show', $session) }}" class="text-primary-600 hover:text-primary-900 mr-3">Détails</a>
                         @if(!$session->date_fermeture)
                         <a href="{{ route('cash-sessions.close', $session) }}" class="text-red-600 hover:text-red-900 mr-3">Fermer</a>
                         <a href="{{ route('cash-transactions.create', ['cash_session_id' => $session->id]) }}" class="text-green-600 hover:text-green-900">Nouvelle Transaction</a>

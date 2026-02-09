@@ -1,0 +1,149 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\CashSession;
+use App\Models\CashTransaction;
+use App\Models\Employee;
+use App\Models\StockMovement;
+use App\Models\PurchaseRequest;
+use App\Models\Leave;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
+class DashboardController extends Controller
+{
+    public function index()
+    {
+        $user = Auth::user();
+
+        // Priorité aux administrateurs et managers
+        if ($user->hasRole('admin') || $user->hasRole('administrateur') || $user->hasRole('manager')) {
+            // Continuer vers le dashboard principal
+        }
+        // Rôles spécifiques en priorité
+        elseif ($user->hasRole('hr')) {
+            return redirect()->route('hr.dashboard');
+        }
+        elseif ($user->hasRole('accounting')) {
+            return redirect()->route('accounting.dashboard');
+        }
+        elseif ($user->hasRole('purchases')) {
+            return redirect()->route('purchases.dashboard');
+        }
+        elseif ($user->hasRole('consultant') || $user->hasRole('viewer')) {
+            return redirect()->route('viewer.dashboard');
+        }
+        elseif ($user->hasRole('operational') || $user->hasRole('agent_operationnel')) {
+            return redirect()->route('operational.dashboard');
+        }
+        elseif ($user->hasRole('supplier')) {
+            return redirect()->route('supplier.portal.index');
+        }
+        // Vérifier les modules seulement si aucun rôle spécifique
+        elseif ($user->canAccessModule('hr')) {
+            return redirect()->route('hr.dashboard');
+        }
+        elseif ($user->canAccessModule('accounting')) {
+            return redirect()->route('accounting.dashboard');
+        }
+        elseif ($user->canAccessModule('purchases')) {
+            return redirect()->route('purchases.dashboard');
+        }
+        elseif ($user->canAccessModule('suppliers')) {
+            return redirect()->route('fournisseurs.dashboard');
+        }
+        elseif ($user->canAccessModule('clients')) {
+            return redirect()->route('clients.dashboard');
+        }
+        elseif ($user->canAccessModule('cash')) {
+            return redirect()->route('cash.dashboard');
+        }
+
+        if (
+            !$user->canAccessModule('dashboard')
+            && !$user->hasRole('administrateur')
+            && !$user->hasRole('admin')
+            && !$user->hasRole('manager')
+        ) {
+            abort(403, 'Accès non autorisé');
+        }
+
+        // Trésorerie consolidée
+        $totalCashIn = CashTransaction::where('type', 'encaissement')
+            ->where('status', 'validee')
+            ->sum('montant');
+        
+        $totalCashOut = CashTransaction::where('type', 'decaissement')
+            ->where('status', 'validee')
+            ->sum('montant');
+        
+        $tresorerieConsolidee = $totalCashIn - $totalCashOut;
+
+        // Masse salariale (approximative)
+        $activeEmployees = Employee::where('status', 'actif')->count();
+        $masseSalariale = $activeEmployees * 250000; // Valeur approximative par employé
+
+        // Stocks disponibles (approximation)
+        $stockMouvements = StockMovement::where('type', 'entree')->sum('quantite');
+        $stockDisponible = $stockMouvements; // À adapter selon votre logique métier
+
+        // Achats mensuels
+        $achatsMensuels = PurchaseRequest::where('statut', 'approuvee')
+            ->whereMonth('created_at', now()->month)
+            ->whereYear('created_at', now()->year)
+            ->sum('prix_estime_total');
+
+        // Récupérer la dernière session de caisse
+        $session = CashSession::latest()->first();
+
+        // Statistiques pour les graphiques
+        $chartData = [
+            'labels' => ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin'],
+            'datasets' => [
+                [
+                    'label' => 'Encaissements',
+                    'data' => [1200000, 1900000, 1500000, 2100000, 1800000, 2400000],
+                    'borderColor' => '#C20000',
+                    'backgroundColor' => 'rgba(194,0,0,0.1)',
+                    'fill' => true,
+                    'tension' => 0.4
+                ],
+                [
+                    'label' => 'Dépenses',
+                    'data' => [900000, 1200000, 1100000, 1500000, 1300000, 1800000],
+                    'borderColor' => '#666',
+                    'backgroundColor' => 'rgba(102,102,102,0.1)',
+                    'fill' => true,
+                    'tension' => 0.4
+                ]
+            ]
+        ];
+
+        // Alertes
+        $alerts = [
+            [
+                'type' => 'danger',
+                'message' => 'Stock bas : Cartouches d\'encre (5 unités restantes)'
+            ],
+            [
+                'type' => 'warning',
+                'message' => 'Demande d\'achat en attente de validation'
+            ],
+            [
+                'type' => 'info',
+                'message' => '3 absences à valider pour la semaine en cours'
+            ]
+        ];
+
+        return view('dashboard', compact(
+            'tresorerieConsolidee',
+            'masseSalariale',
+            'stockDisponible',
+            'achatsMensuels',
+            'session',
+            'chartData',
+            'alerts'
+        ));
+    }
+}

@@ -11,14 +11,10 @@ return new class extends Migration
     {
         Schema::create('products', function (Blueprint $table) {
             $table->uuid('id');
-            $table->string('name');
-            $table->string('site')->nullable();
-            $table->text('description');
-            $table->text('functionality');
-            $table->boolean('published')->default(false);
-            $table->boolean('portfolio')->default(false);
-            $table->foreignIdFor(Category::class);
-            $table->timestamps();
+            $table->string('name')->unique();
+            $table->text('description')->nullable();
+            $table->integer('quantite')->default(0);
+            $table->decimal('prix_unitaire', 15, 2)->default(0);
         });
     }
 

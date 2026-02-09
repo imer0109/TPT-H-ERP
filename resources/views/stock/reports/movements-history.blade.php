@@ -104,8 +104,8 @@
                                                 <span class="badge badge-danger">Sortie</span>
                                             @endif
                                         </td>
-                                        <td>{{ $movement->warehouse->nom }}</td>
-                                        <td>{{ $movement->product->nom }}</td>
+                                        <td>{{ $movement->warehouse->name }}</td>
+                                        <td>{{ $movement->product->name }}</td>
                                         <td class="text-right">{{ number_format($movement->quantite, 2) }}</td>
                                         <td class="text-right">{{ number_format($movement->prix_unitaire, 2) }}</td>
                                         <td class="text-right">{{ number_format($movement->montant_total, 2) }}</td>

@@ -3,13 +3,130 @@
 namespace App\Http\Controllers;
 
 use App\Models\Document;
+use App\Models\Employee;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Response;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class DocumentController extends Controller
 {
+    /**
+     * Display the documents index page
+     */
+    public function index()
+    {
+        // Fetch recent documents
+        $recentDocuments = Document::orderBy('created_at', 'desc')->limit(10)->get();
+        
+        // Show documents index page with data
+        return view('hr.documents.index', compact('recentDocuments'));
+    }
+
+    /**
+     * Display the work certificate generation form
+     */
+    public function workCertificate(Employee $employee)
+    {
+        return view('hr.documents.work-certificate', compact('employee'));
+    }
+
+    /**
+     * Generate and download the work certificate
+     */
+    public function generateWorkCertificate(Request $request, Employee $employee)
+    {
+        // Validate the request
+        $validated = $request->validate([
+            'reason' => 'required|string',
+            'additional_info' => 'nullable|string',
+            'end_date' => 'nullable|date|after:employee.date_embauche',
+        ]);
+        
+        // Generate PDF certificate
+        $data = [
+            'employee' => $employee,
+            'reason' => $validated['reason'],
+            'additional_info' => $validated['additional_info'],
+            'end_date' => $validated['end_date'] ?? null,
+            'generated_date' => now(),
+        ];
+        
+        $pdf = Pdf::loadView('hr.documents.pdf.work-certificate', $data);
+        $filename = 'certificat_travail_' . str_slug($employee->full_name) . '_' . now()->format('Y-m-d') . '.pdf';
+        
+        // Save to documents table
+        $document = Document::create([
+            'nom' => 'Certificat de Travail - ' . $employee->full_name,
+            'type_document' => 'certificat_travail',
+            'chemin_fichier' => 'documents/' . $filename,
+            'taille' => 0, // Will be updated after saving
+            'format' => 'pdf',
+            'description' => 'Certificat de travail pour ' . $employee->full_name,
+            'user_id' => Auth::id(),
+            'documentable_id' => $employee->id,
+            'documentable_type' => Employee::class,
+        ]);
+        
+        return $pdf->download($filename);
+    }
+
+    /**
+     * Display the salary certificate generation form
+     */
+    public function salaryCertificate(Employee $employee)
+    {
+        return view('hr.documents.salary-certificate', compact('employee'));
+    }
+
+    /**
+     * Generate and download the salary certificate
+     */
+    public function generateSalaryCertificate(Request $request, Employee $employee)
+    {
+        // Validate the request
+        $validated = $request->validate([
+            'period_start' => 'required|date',
+            'period_end' => 'required|date|after:period_start',
+            'gross_salary' => 'required|numeric|min:0',
+            'net_salary' => 'required|numeric|min:0',
+            'reason' => 'required|string',
+            'additional_info' => 'nullable|string',
+        ]);
+        
+        // Generate PDF certificate
+        $data = [
+            'employee' => $employee,
+            'period_start' => $validated['period_start'],
+            'period_end' => $validated['period_end'],
+            'gross_salary' => $validated['gross_salary'],
+            'net_salary' => $validated['net_salary'],
+            'reason' => $validated['reason'],
+            'additional_info' => $validated['additional_info'],
+            'generated_date' => now(),
+        ];
+        
+        $pdf = Pdf::loadView('hr.documents.pdf.salary-certificate', $data);
+        $filename = 'certificat_salaire_' . str_slug($employee->full_name) . '_' . now()->format('Y-m-d') . '.pdf';
+        
+        // Save to documents table
+        $document = Document::create([
+            'nom' => 'Certificat de Salaire - ' . $employee->full_name,
+            'type_document' => 'certificat_salaire',
+            'chemin_fichier' => 'documents/' . $filename,
+            'taille' => 0, // Will be updated after saving
+            'format' => 'pdf',
+            'description' => 'Certificat de salaire pour ' . $employee->full_name,
+            'user_id' => Auth::id(),
+            'documentable_id' => $employee->id,
+            'documentable_type' => Employee::class,
+        ]);
+        
+        return $pdf->download($filename);
+    }
+
     /**
      * Télécharger un document
      */
@@ -67,6 +184,8 @@ class DocumentController extends Controller
                 'rccm',
                 'niu',
                 'piece_identite',
+                'certificat_travail',
+                'certificat_salaire',
                 'autre'
             ])],
             'description' => 'nullable|string',

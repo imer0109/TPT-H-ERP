@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('content')
 <div class="container mx-auto px-4 py-6">
@@ -10,6 +10,9 @@
             </a>
             <a href="{{ route('clients.edit', $client) }}" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded">
                 <i class="fas fa-edit mr-2"></i> Modifier
+            </a>
+            <a href="{{ route('clients.score', $client) }}" class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded">
+                <i class="fas fa-chart-bar mr-2"></i> Scoring
             </a>
         </div>
     </div>
@@ -34,7 +37,7 @@
                     <div class="text-sm text-gray-500">Type</div>
                     <div>
                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                            {{ $client->type_client == 'particulier' ? 'bg-blue-100 text-blue-800' : '' }}
+                            {{ $client->type_client == 'particulier' ? 'bg-primary-100 text-primary-800' : '' }}
                             {{ $client->type_client == 'entreprise' ? 'bg-green-100 text-green-800' : '' }}
                             {{ $client->type_client == 'administration' ? 'bg-purple-100 text-purple-800' : '' }}
                             {{ $client->type_client == 'distributeur' ? 'bg-yellow-100 text-yellow-800' : '' }}
@@ -62,6 +65,36 @@
                 <div class="grid grid-cols-2">
                     <div class="text-sm text-gray-500">Ville</div>
                     <div>{{ $client->ville ?: 'Non renseignée' }}</div>
+                </div>
+                
+                <div class="grid grid-cols-2">
+                    <div class="text-sm text-gray-500">Contact principal</div>
+                    <div>{{ $client->contact_principal ?: 'Non renseigné' }}</div>
+                </div>
+                
+                <div class="grid grid-cols-2">
+                    <div class="text-sm text-gray-500">Canal d'acquisition</div>
+                    <div>
+                        @switch($client->canal_acquisition)
+                            @case('commerce_direct')
+                                Commerce direct
+                                @break
+                            @case('web')
+                                Web
+                                @break
+                            @case('recommande')
+                                Recommandé
+                                @break
+                            @case('reseaux_sociaux')
+                                Réseaux sociaux
+                                @break
+                            @case('evenement')
+                                Événement
+                                @break
+                            @default
+                                Non renseigné
+                        @endswitch
+                    </div>
                 </div>
                 
                 <div class="grid grid-cols-2">
@@ -95,7 +128,7 @@
             
             <div class="space-y-4">
                 <div class="flex items-center">
-                    <span class="text-xl mr-3 bg-blue-100 text-blue-800 p-2 rounded-full">
+                    <span class="text-xl mr-3 bg-primary-100 text-primary-800 p-2 rounded-full">
                         <i class="fas fa-phone"></i>
                     </span>
                     <div>
@@ -111,6 +144,16 @@
                     <div>
                         <p class="text-sm text-gray-500">Email</p>
                         <p class="font-semibold">{{ $client->email ?: 'Non renseigné' }}</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center">
+                    <span class="text-xl mr-3 bg-primary-100 text-primary-800 p-2 rounded-full">
+                        <i class="fab fa-whatsapp"></i>
+                    </span>
+                    <div>
+                        <p class="text-sm text-gray-500">WhatsApp</p>
+                        <p class="font-semibold">{{ $client->whatsapp ?: 'Non renseigné' }}</p>
                     </div>
                 </div>
                 
@@ -171,7 +214,12 @@
             </div>
             
             <div class="mt-6">
-                <h3 class="font-semibold text-gray-700 mb-2">Dernières transactions</h3>
+                <div class="flex justify-between items-center mb-2">
+                    <h3 class="font-semibold text-gray-700">Dernières transactions</h3>
+                    <a href="{{ route('clients.transactions', $client) }}" class="text-sm text-primary-600 hover:text-primary-800">
+                        Voir toutes les transactions <i class="fas fa-arrow-right ml-1"></i>
+                    </a>
+                </div>
                 @if($client->transactions->count() > 0)
                     <ul class="divide-y divide-gray-200">
                         @foreach($client->transactions->take(5) as $transaction)
@@ -207,6 +255,9 @@
                     <button @click="activeTab = 'documents'" :class="{ 'border-red-500 text-red-600': activeTab === 'documents', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': activeTab !== 'documents' }" class="py-4 px-6 font-medium border-b-2 focus:outline-none">
                         <i class="fas fa-file-alt mr-2"></i> Documents
                     </button>
+                    <button @click="activeTab = 'integrations'" :class="{ 'border-red-500 text-red-600': activeTab === 'integrations', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': activeTab !== 'integrations' }" class="py-4 px-6 font-medium border-b-2 focus:outline-none">
+                        <i class="fas fa-plug mr-2"></i> Intégrations
+                    </button>
                 </nav>
             </div>
             
@@ -214,7 +265,7 @@
             <div x-show="activeTab === 'interactions'" class="p-6">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-lg font-semibold text-gray-700">Historique des interactions</h2>
-                    <a href="{{ route('clients.interactions.create', ['client_id' => $client->id]) }}" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold py-2 px-4 rounded">
+                    <a href="{{ route('clients.interactions.create', ['client_id' => $client->id]) }}" class="bg-primary-600 hover:bg-primary-700 text-white text-sm font-bold py-2 px-4 rounded">
                         <i class="fas fa-plus mr-2"></i> Nouvelle interaction
                     </a>
                 </div>
@@ -271,14 +322,14 @@
                 @if($client->reclamations->count() > 0)
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
+                            <thead class="bg-primary-50">
                                 <tr>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Agent</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-primary-700 uppercase tracking-wider">Date</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-primary-700 uppercase tracking-wider">Type</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-primary-700 uppercase tracking-wider">Description</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-primary-700 uppercase tracking-wider">Statut</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-primary-700 uppercase tracking-wider">Agent</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-primary-700 uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
@@ -301,7 +352,7 @@
                                             {{ $reclamation->agent ? $reclamation->agent->nom . ' ' . $reclamation->agent->prenom : 'Non assigné' }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                            <a href="{{ route('clients.reclamations.show', $reclamation) }}" class="text-blue-600 hover:text-blue-900 mr-3">
+                                            <a href="{{ route('clients.reclamations.show', $reclamation) }}" class="text-primary-600 hover:text-primary-900 mr-3">
                                                 <i class="fas fa-eye"></i>
                                             </a>
                                             <a href="{{ route('clients.reclamations.edit', $reclamation) }}" class="text-yellow-600 hover:text-yellow-900">
@@ -338,7 +389,7 @@
                             <div class="border rounded-lg p-4 flex flex-col">
                                 <div class="flex justify-between items-start">
                                     <div class="flex items-center">
-                                        <span class="text-2xl mr-3 {{ $document->format == 'pdf' ? 'text-red-500' : 'text-blue-500' }}">
+                                        <span class="text-2xl mr-3 {{ $document->format == 'pdf' ? 'text-red-500' : 'text-primary-500' }}">
                                             <i class="fas {{ $document->format == 'pdf' ? 'fa-file-pdf' : 'fa-file-image' }}"></i>
                                         </span>
                                         <div>
@@ -347,7 +398,7 @@
                                         </div>
                                     </div>
                                     <div class="flex">
-                                        <a href="{{ route('documents.download', $document) }}" class="text-blue-600 hover:text-blue-900 mr-2">
+                                        <a href="{{ route('documents.download', $document) }}" class="text-primary-600 hover:text-primary-900 mr-2">
                                             <i class="fas fa-download"></i>
                                         </a>
                                         <form action="{{ route('documents.destroy', $document) }}" method="POST" class="inline-block">
@@ -364,7 +415,7 @@
                                 </div>
                                 <div class="mt-3 text-center">
                                     @if(in_array($document->format, ['jpg', 'jpeg', 'png', 'gif']))
-                                        <a href="{{ route('documents.show', $document) }}" class="text-sm text-blue-600 hover:text-blue-800">
+                                        <a href="{{ route('documents.show', $document) }}" class="text-sm text-primary-600 hover:text-primary-800">
                                             <i class="fas fa-eye mr-1"></i> Aperçu
                                         </a>
                                     @endif
@@ -374,6 +425,74 @@
                     </div>
                 @else
                     <p class="text-gray-500 italic">Aucun document disponible</p>
+                @endif
+            </div>
+            
+            <!-- Intégrations -->
+            <div x-show="activeTab === 'integrations'" class="p-6" style="display: none;">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-semibold text-gray-700">Intégrations</h2>
+                    <a href="{{ route('clients.integrations.create', $client) }}" class="bg-red-600 hover:bg-red-700 text-white text-sm font-bold py-2 px-4 rounded">
+                        <i class="fas fa-plus mr-2"></i> Nouvelle intégration
+                    </a>
+                </div>
+                
+                @if($client->integrations->count() > 0)
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-primary-50">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-primary-700 uppercase tracking-wider">Système Externe</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-primary-700 uppercase tracking-wider">Type</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-primary-700 uppercase tracking-wider">ID Externe</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-primary-700 uppercase tracking-wider">Statut</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-primary-700 uppercase tracking-wider">Dernière Synchronisation</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-primary-700 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                @foreach($client->integrations as $integration)
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $integration->external_system }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ ucfirst($integration->integration_type) }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $integration->external_id ?? 'N/A' }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            @if($integration->sync_status == 'synced')
+                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                                    Synchronisé
+                                                </span>
+                                            @elseif($integration->sync_status == 'pending')
+                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                                    En attente
+                                                </span>
+                                            @else
+                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                                    Échoué
+                                                </span>
+                                            @endif
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            {{ $integration->last_sync_at ? $integration->last_sync_at->format('d/m/Y H:i') : 'Jamais' }}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                            <a href="{{ route('clients.integrations.edit', $integration) }}" class="text-primary-600 hover:text-primary-900 mr-3">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <form action="{{ route('clients.integrations.destroy', $integration) }}" method="POST" class="inline-block">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="text-red-600 hover:text-red-900" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette intégration ?')">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @else
+                    <p class="text-gray-500 italic">Aucune intégration configurée</p>
                 @endif
             </div>
         </div>

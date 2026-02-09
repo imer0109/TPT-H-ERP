@@ -5,15 +5,16 @@
     <div class="max-w-3xl mx-auto">
         <h1 class="text-2xl font-semibold text-gray-900 mb-6">Créer une Nouvelle Caisse</h1>
 
-        <form action="{{ route('cash-registers.store') }}" method="POST" class="space-y-6">
+        <form action="{{ route('cash.registers.store') }}" method="POST" class="space-y-6" id="cashRegisterForm">
             @csrf
 
             <div class="bg-white shadow px-4 py-5 sm:rounded-lg sm:p-6">
                 <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2">
+
                     <div>
                         <label for="nom" class="block text-sm font-medium text-gray-700">Nom de la caisse</label>
                         <input type="text" name="nom" id="nom" value="{{ old('nom') }}" required
-                            class="mt-1 focus:ring-red-500 focus:border-red-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-red-500 focus:border-red-500 sm:text-sm">
                         @error('nom')
                         <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                         @enderror
@@ -22,7 +23,7 @@
                     <div>
                         <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
                         <input type="text" name="description" id="description" value="{{ old('description') }}"
-                            class="mt-1 focus:ring-red-500 focus:border-red-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-red-500 focus:border-red-500 sm:text-sm">
                         @error('description')
                         <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                         @enderror
@@ -30,7 +31,8 @@
 
                     <div>
                         <label for="entity_type" class="block text-sm font-medium text-gray-700">Type d'entité</label>
-                        <select name="entity_type" id="entity_type" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm rounded-md">
+                        <select name="entity_type" id="entity_type" required
+                            class="mt-1 block w-full rounded-md border-gray-300 focus:ring-red-500 focus:border-red-500 sm:text-sm">
                             <option value="">Sélectionner un type</option>
                             <option value="App\Models\Company" {{ old('entity_type') === 'App\Models\Company' ? 'selected' : '' }}>Société</option>
                             <option value="App\Models\Agency" {{ old('entity_type') === 'App\Models\Agency' ? 'selected' : '' }}>Agence</option>
@@ -42,8 +44,9 @@
 
                     <div>
                         <label for="entity_id" class="block text-sm font-medium text-gray-700">Entité</label>
-                        <select name="entity_id" id="entity_id" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm rounded-md">
-                            <option value="">Sélectionner d'abord un type d'entité</option>
+                        <select name="entity_id" id="entity_id" required
+                            class="mt-1 block w-full rounded-md border-gray-300 focus:ring-red-500 focus:border-red-500 sm:text-sm">
+                            <option value="">Sélectionner d'abord un type</option>
                         </select>
                         @error('entity_id')
                         <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
@@ -51,12 +54,26 @@
                     </div>
 
                     <div>
+                        <label for="type" class="block text-sm font-medium text-gray-700">Type de caisse</label>
+                        <select name="type" id="type" required
+                            class="mt-1 block w-full rounded-md border-gray-300 focus:ring-red-500 focus:border-red-500 sm:text-sm">
+                            <option value="">Sélectionner un type</option>
+                            <option value="principale" {{ old('type') === 'principale' ? 'selected' : '' }}>Principale</option>
+                            <option value="secondaire" {{ old('type') === 'secondaire' ? 'selected' : '' }}>Secondaire</option>
+                        </select>
+                        @error('type')
+                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
                         <label for="solde_initial" class="block text-sm font-medium text-gray-700">Solde initial</label>
-                        <div class="mt-1 relative rounded-md shadow-sm">
-                            <input type="number" name="solde_initial" id="solde_initial" value="{{ old('solde_initial', 0) }}" step="0.01"
-                                class="focus:ring-red-500 focus:border-red-500 block w-full pr-12 sm:text-sm border-gray-300 rounded-md">
-                            <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                <span class="text-gray-500 sm:text-sm">FCFA</span>
+                        <div class="relative mt-1 rounded-md shadow-sm">
+                            <input type="number" name="solde_initial" id="solde_initial"
+                                value="{{ old('solde_initial', 0) }}" min="0" step="0.01" required
+                                class="block w-full rounded-md border-gray-300 pr-12 focus:ring-red-500 focus:border-red-500 sm:text-sm">
+                            <div class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 sm:text-sm">
+                                FCFA
                             </div>
                         </div>
                         @error('solde_initial')
@@ -66,60 +83,60 @@
 
                     <div>
                         <label for="active" class="block text-sm font-medium text-gray-700">Statut</label>
-                        <select name="active" id="active" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm rounded-md">
-                            <option value="1" {{ old('active') == '1' ? 'selected' : '' }}>Active</option>
-                            <option value="0" {{ old('active') == '0' ? 'selected' : '' }}>Inactive</option>
+                        <select name="active" id="active"
+                            class="mt-1 block w-full rounded-md border-gray-300 focus:ring-red-500 focus:border-red-500 sm:text-sm">
+                            <option value="1" {{ old('active', 1) == 1 ? 'selected' : '' }}>Active</option>
+                            <option value="0" {{ old('active') == 0 ? 'selected' : '' }}>Inactive</option>
                         </select>
-                        @error('active')
-                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
                     </div>
+
                 </div>
             </div>
 
-            <div class="flex justify-end">
-                <a href="{{ route('cash-registers.index') }}" class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+            <div class="flex justify-end gap-3">
+                <a href="{{ route('cash.registers.index') }}"
+                   class="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
                     Annuler
                 </a>
-                <button type="submit" class="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                <button type="submit"
+                        class="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700">
                     Créer
                 </button>
             </div>
         </form>
     </div>
 </div>
+@endsection
 
 @push('scripts')
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const entityTypeSelect = document.getElementById('entity_type');
-        const entityIdSelect = document.getElementById('entity_id');
+document.addEventListener('DOMContentLoaded', () => {
+    const entityTypeSelect = document.getElementById('entity_type');
+    const entityIdSelect = document.getElementById('entity_id');
+    const oldEntityId = @json(old('entity_id'));
 
-        entityTypeSelect.addEventListener('change', function() {
-            const entityType = this.value;
-            entityIdSelect.innerHTML = '<option value="">Chargement...</option>';
+    function loadEntities(type) {
+        if (!type) return;
 
-            if (entityType) {
-                fetch(`/api/entities-by-type?type=${entityType}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        entityIdSelect.innerHTML = '<option value="">Sélectionner une entité</option>';
-                        data.forEach(entity => {
-                            const option = document.createElement('option');
-                            option.value = entity.id;
-                            option.textContent = entity.type === 'App\\Models\\Company' ? entity.raison_sociale : entity.nom;
-                            entityIdSelect.appendChild(option);
-                        });
-                    })
-                    .catch(error => {
-                        console.error('Erreur lors du chargement des entités:', error);
-                        entityIdSelect.innerHTML = '<option value="">Erreur de chargement</option>';
-                    });
-            } else {
-                entityIdSelect.innerHTML = '<option value="">Sélectionner d'abord un type d'entité</option>';
-            }
-        });
-    });
+        fetch(`/api/entities-by-type?type=${encodeURIComponent(type)}&_=${Date.now()}`)
+            .then(r => r.json())
+            .then(data => {
+                entityIdSelect.innerHTML = '<option value="">Sélectionner une entité</option>';
+                data.forEach(e => {
+                    const option = document.createElement('option');
+                    option.value = e.id;
+                    option.textContent = type === 'App\\Models\\Company'
+                        ? e.raison_sociale ?? 'Société sans nom'
+                        : e.nom ?? 'Agence sans nom';
+                    entityIdSelect.appendChild(option);
+                });
+
+                if (oldEntityId) entityIdSelect.value = oldEntityId;
+            });
+    }
+
+    entityTypeSelect.addEventListener('change', e => loadEntities(e.target.value));
+    if (entityTypeSelect.value) loadEntities(entityTypeSelect.value);
+});
 </script>
 @endpush
-@endsection

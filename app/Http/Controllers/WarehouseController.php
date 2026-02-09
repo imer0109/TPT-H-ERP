@@ -1,11 +1,15 @@
 <?php
 
 namespace App\Http\Controllers;
+
+use App\Models\Agency;
+use App\Models\User;
+
 use App\Models\Warehouse;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\WarehouseRequest;
-
+use App\Models\Company;
 use Illuminate\Http\Request;
 
 class WarehouseController extends Controller
@@ -18,7 +22,9 @@ class WarehouseController extends Controller
 
     public function create()
     {
-        return view('stock.warehouses.create');
+        $societes = Company::all();
+        $agences = Agency::all();
+        return view('stock.warehouses.create', compact('societes', 'agences'));
     }
 
     public function store(WarehouseRequest $request)

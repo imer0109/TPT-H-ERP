@@ -1,0 +1,43 @@
+    public function index()
+    {
+        // Check permission
+        if (!auth()->user()->canAccessModule('suppliers') && !auth()->user()->hasPermission('suppliers.supplier_issues.view')) {
+            abort(403, 'Accès non autorisé');
+        }
+        
+        $issues = SupplierIssue::with('fournisseur')->latest()->paginate(15);
+        return view('fournisseurs.issues.index', compact('issues'));
+    }
+
+    public function create()
+    {
+        // Check permission
+        if (!auth()->user()->canAccessModule('suppliers') && !auth()->user()->hasPermission('suppliers.supplier_issues.create')) {
+            abort(403, 'Accès non autorisé');
+        }
+        
+        $fournisseurs = Fournisseur::orderBy('raison_sociale')->pluck('raison_sociale','id');
+        return view('fournisseurs.issues.create', compact('fournisseurs'));
+    }
+
+    public function store(Request $request)
+    {
+        // Check permission
+        if (!auth()->user()->canAccessModule('suppliers') && !auth()->user()->hasPermission('suppliers.supplier_issues.create')) {
+            abort(403, 'Accès non autorisé');
+        }
+        
+        $validated = $request->validate([
+            'fournisseur_id' => ['required','exists:fournisseurs,id'],
+            'type' => ['required','in:retard,non_conformite,facturation,autre'],
+            'titre' => ['required','string','max:255'],
+            'description' => ['nullable','string'],
+        ]);
+
+        SupplierIssue::create($validated + [
+            'statut' => 'nouvelle',
+            'created_by' => auth()->id(),
+        ]);
+
+        return redirect()->route('fournisseurs.issues.index')->with('success','Réclamation créée');
+    }

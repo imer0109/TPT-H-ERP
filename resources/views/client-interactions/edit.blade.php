@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('content')
 <div class="container mx-auto px-4 py-6">
@@ -138,7 +138,7 @@
                         <div class="flex items-center justify-between bg-gray-50 p-3 rounded-md">
                             <div class="flex items-center">
                                 @if(in_array(pathinfo($document->file_path, PATHINFO_EXTENSION), ['jpg', 'jpeg', 'png', 'gif']))
-                                    <i class="fas fa-file-image text-blue-500 mr-2"></i>
+                                    <i class="fas fa-file-image text-primary-500 mr-2"></i>
                                 @elseif(pathinfo($document->file_path, PATHINFO_EXTENSION) == 'pdf')
                                     <i class="fas fa-file-pdf text-red-500 mr-2"></i>
                                 @else
@@ -147,7 +147,7 @@
                                 <span class="text-sm truncate" title="{{ $document->original_name }}">{{ $document->original_name }}</span>
                             </div>
                             <div class="flex space-x-1">
-                                <a href="{{ route('documents.view', $document->id) }}" target="_blank" class="text-blue-500 hover:text-blue-700" title="Voir">
+                                <a href="{{ route('documents.view', $document->id) }}" target="_blank" class="text-primary-500 hover:text-primary-700" title="Voir">
                                     <i class="fas fa-eye"></i>
                                 </a>
                                 <a href="{{ route('documents.download', $document->id) }}" class="text-green-500 hover:text-green-700" title="Télécharger">

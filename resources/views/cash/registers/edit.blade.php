@@ -102,32 +102,42 @@
         if (entityTypeSelect.value === 'App\\Models\\Company') {
             societeSelect.classList.remove('hidden');
             agenceSelect.classList.add('hidden');
-            agenceIdSelect.name = '_entity_id';
-            societeIdSelect.name = 'entity_id';
+            // Assurez-vous que seul le bon select a le nom "entity_id"
+            agenceIdSelect.removeAttribute('name');
+            societeIdSelect.setAttribute('name', 'entity_id');
         } else if (entityTypeSelect.value === 'App\\Models\\Agency') {
             societeSelect.classList.add('hidden');
             agenceSelect.classList.remove('hidden');
-            societeIdSelect.name = '_entity_id';
-            agenceIdSelect.name = 'entity_id';
+            // Assurez-vous que seul le bon select a le nom "entity_id"
+            societeIdSelect.removeAttribute('name');
+            agenceIdSelect.setAttribute('name', 'entity_id');
         } else {
             societeSelect.classList.add('hidden');
             agenceSelect.classList.add('hidden');
+            // Supprimez les noms si aucun type n'est sélectionné
+            societeIdSelect.removeAttribute('name');
+            agenceIdSelect.removeAttribute('name');
         }
 
         entityTypeSelect.addEventListener('change', function() {
             if (this.value === 'App\\Models\\Company') {
                 societeSelect.classList.remove('hidden');
                 agenceSelect.classList.add('hidden');
-                agenceIdSelect.name = '_entity_id';
-                societeIdSelect.name = 'entity_id';
+                // Assurez-vous que seul le bon select a le nom "entity_id"
+                agenceIdSelect.removeAttribute('name');
+                societeIdSelect.setAttribute('name', 'entity_id');
             } else if (this.value === 'App\\Models\\Agency') {
                 societeSelect.classList.add('hidden');
                 agenceSelect.classList.remove('hidden');
-                societeIdSelect.name = '_entity_id';
-                agenceIdSelect.name = 'entity_id';
+                // Assurez-vous que seul le bon select a le nom "entity_id"
+                societeIdSelect.removeAttribute('name');
+                agenceIdSelect.setAttribute('name', 'entity_id');
             } else {
                 societeSelect.classList.add('hidden');
                 agenceSelect.classList.add('hidden');
+                // Supprimez les noms si aucun type n'est sélectionné
+                societeIdSelect.removeAttribute('name');
+                agenceIdSelect.removeAttribute('name');
             }
         });
     });

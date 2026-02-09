@@ -4,20 +4,27 @@ namespace App\Http\Controllers;
 
 use App\Models\Attendance;
 use App\Models\Employee;
+use App\Models\Position;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
+use App\Http\Controllers\Controller;
 
 class AttendanceController extends Controller
 {
     public function index(Request $request)
     {
-        $attendances = Attendance::with('employee')
+        $attendances = Attendance::with(['employee.currentPosition'])
             ->when($request->date, function($query, $date) {
                 $query->whereDate('date', $date);
             })
             ->when($request->employee_id, function($query, $employee_id) {
                 $query->where('employee_id', $employee_id);
+            })
+            ->when($request->position, function($query, $position) {
+                $query->whereHas('employee', function($q) use ($position) {
+                    $q->where('current_position_id', $position);
+                });
             })
             ->when($request->status, function($query, $status) {
                 $query->where('status', $status);
@@ -26,7 +33,66 @@ class AttendanceController extends Controller
             ->orderBy('check_in', 'desc')
             ->paginate(15);
 
-        return view('attendances.index', compact('attendances'));
+        // Get unique departments from positions for filtering
+        $departments = Position::whereNotNull('title')
+            ->select('id', 'title as name')
+            ->distinct()
+            ->get();
+
+        return view('attendances.index', compact('attendances', 'departments'));
+    }
+
+    public function create()
+    {
+        $employees = Employee::with('currentPosition')
+            ->where('status', 'active')
+            ->get();
+
+        return view('attendances.create', compact('employees'));
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'employee_id' => 'required|exists:employees,id',
+            'date' => 'required|date',
+            'check_in' => 'nullable|date_format:H:i',
+            'check_out' => 'nullable|date_format:H:i|after:check_in',
+            'status' => 'required|in:present,absent,late,half_day',
+            'late_minutes' => 'nullable|integer|min:0',
+            'notes' => 'nullable|string|max:500',
+            'check_in_photo' => 'nullable|image|max:2048'
+        ]);
+
+        // Check if attendance already exists for this employee and date
+        $existingAttendance = Attendance::where('employee_id', $request->employee_id)
+            ->whereDate('date', $request->date)
+            ->first();
+
+        if ($existingAttendance) {
+            return back()->with('error', 'Un pointage existe déjà pour cet employé à cette date.');
+        }
+
+        $data = $request->only([
+            'employee_id', 'date', 'check_in', 'check_out', 
+            'status', 'late_minutes', 'notes'
+        ]);
+
+        // Handle photo upload
+        if ($request->hasFile('check_in_photo')) {
+            $data['check_in_photo'] = $request->file('check_in_photo')
+                ->store('attendances/photos', 'public');
+        }
+
+        // Set defaults
+        $data['late_minutes'] = $data['late_minutes'] ?? 0;
+        $data['overtime_minutes'] = 0;
+
+        Attendance::create($data);
+
+        return redirect()
+            ->route('hr.attendances.index')
+            ->with('success', 'Pointage créé avec succès');
     }
 
     public function checkIn(Request $request)
@@ -64,7 +130,7 @@ class AttendanceController extends Controller
         ]);
 
         return redirect()
-            ->route('attendances.index')
+            ->route('hr.attendances.index')
             ->with('success', 'Pointage d\'entrée enregistré');
     }
 
@@ -93,7 +159,7 @@ class AttendanceController extends Controller
         ]);
 
         return redirect()
-            ->route('attendances.index')
+            ->route('hr.attendances.index')
             ->with('success', 'Pointage de sortie enregistré');
     }
 
@@ -124,5 +190,49 @@ class AttendanceController extends Controller
             ->groupBy('employee_id');
 
         return view('attendances.report', compact('attendances'));
+    }
+    
+    /**
+     * Show biometric attendance management page
+     */
+    public function biometric()
+    {
+        // Get unique biometric devices
+        $devices = Attendance::select('device_id', 'device_name')
+            ->whereNotNull('device_id')
+            ->groupBy('device_id', 'device_name')
+            ->get();
+            
+        // Get recent biometric attendance records
+        $biometricAttendances = Attendance::with('employee')
+            ->whereNotNull('biometric_id')
+            ->orderBy('biometric_timestamp', 'desc')
+            ->limit(20)
+            ->get();
+
+        return view('attendances.biometric', compact('devices', 'biometricAttendances'));
+    }
+    
+    /**
+     * Sync employees with biometric devices
+     */
+    public function syncEmployees()
+    {
+        try {
+            $employees = Employee::where('status', 'active')
+                ->whereNotNull('biometric_id')
+                ->get(['id', 'biometric_id', 'first_name', 'last_name', 'email']);
+
+            return response()->json([
+                'success' => true,
+                'employees' => $employees,
+                'count' => $employees->count()
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error syncing employees: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

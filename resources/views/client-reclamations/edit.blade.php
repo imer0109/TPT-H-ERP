@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('content')
 <div class="container mx-auto px-4 py-6">
@@ -158,7 +158,7 @@
                                         </div>
                                     </div>
                                     <div class="flex space-x-2">
-                                        <a href="{{ route('documents.show', $document) }}" target="_blank" class="text-blue-500 hover:text-blue-700">
+                                        <a href="{{ route('documents.show', $document) }}" target="_blank" class="text-primary-500 hover:text-primary-700">
                                             <i class="fas fa-eye"></i>
                                         </a>
                                         <a href="{{ route('documents.download', $document) }}" class="text-green-500 hover:text-green-700">

@@ -28,7 +28,7 @@
                         <option value="">Sélectionner une société</option>
                         @foreach($societes as $societe)
                             <option value="{{ $societe->id }}" {{ old('societe_id', $fournisseur->societe_id) == $societe->id ? 'selected' : '' }}>
-                                {{ $societe->nom }}
+                                {{ $societe->raison_sociale }}
                             </option>
                         @endforeach
                     </select>
@@ -218,28 +218,32 @@
                     @enderror
                 </div>
 
+                <!-- Section: Conditions commerciales -->
+                <div class="md:col-span-2 mt-6">
+                    <h2 class="text-lg font-semibold text-gray-700 border-b pb-2 mb-4">Conditions commerciales</h2>
+                </div>
+
                 <div>
-                    <label for="devise" class="block text-sm font-medium text-gray-700 mb-1">Devise préférée</label>
+                    <label for="devise" class="block text-sm font-medium text-gray-700 mb-1">Devise par défaut</label>
                     <select name="devise" id="devise" 
                         class="w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring focus:ring-red-200 @error('devise') border-red-500 @enderror">
                         <option value="">Sélectionner une devise</option>
-                        <option value="XAF" {{ old('devise', $fournisseur->devise) == 'XAF' ? 'selected' : '' }}>XAF (FCFA)</option>
-                        <option value="EUR" {{ old('devise', $fournisseur->devise) == 'EUR' ? 'selected' : '' }}>EUR (Euro)</option>
-                        <option value="USD" {{ old('devise', $fournisseur->devise) == 'USD' ? 'selected' : '' }}>USD (Dollar américain)</option>
+                        <option value="XOF" {{ old('devise', $fournisseur->devise) == 'XOF' ? 'selected' : '' }}>Franc CFA (XOF)</option>
+                        <option value="EUR" {{ old('devise', $fournisseur->devise) == 'EUR' ? 'selected' : '' }}>Euro (EUR)</option>
+                        <option value="USD" {{ old('devise', $fournisseur->devise) == 'USD' ? 'selected' : '' }}>Dollar US (USD)</option>
                     </select>
                     @error('devise')
                         <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                     @enderror
                 </div>
 
-                <!-- Conditions de règlement -->
                 <div>
-                    <label for="condition_reglement" class="block text-sm font-medium text-gray-700 mb-1">Conditions de règlement</label>
+                    <label for="condition_reglement" class="block text-sm font-medium text-gray-700 mb-1">Condition de règlement</label>
                     <select name="condition_reglement" id="condition_reglement" 
                         class="w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring focus:ring-red-200 @error('condition_reglement') border-red-500 @enderror">
                         <option value="">Sélectionner une condition</option>
                         <option value="comptant" {{ old('condition_reglement', $fournisseur->condition_reglement) == 'comptant' ? 'selected' : '' }}>Comptant</option>
-                        <option value="credit" {{ old('condition_reglement', $fournisseur->condition_reglement) == 'credit' ? 'selected' : '' }}>À crédit</option>
+                        <option value="credit" {{ old('condition_reglement', $fournisseur->condition_reglement) == 'credit' ? 'selected' : '' }}>Crédit</option>
                     </select>
                     @error('condition_reglement')
                         <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
@@ -256,111 +260,101 @@
                 </div>
 
                 <div>
-                    <label for="plafond_credit" class="block text-sm font-medium text-gray-700 mb-1">Plafond de crédit autorisé</label>
-                    <input type="number" name="plafond_credit" id="plafond_credit" value="{{ old('plafond_credit', $fournisseur->plafond_credit) }}" min="0" 
+                    <label for="plafond_credit" class="block text-sm font-medium text-gray-700 mb-1">Plafond de crédit</label>
+                    <input type="number" name="plafond_credit" id="plafond_credit" value="{{ old('plafond_credit', $fournisseur->plafond_credit) }}" step="0.01" min="0" 
                         class="w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring focus:ring-red-200 @error('plafond_credit') border-red-500 @enderror">
                     @error('plafond_credit')
                         <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                     @enderror
                 </div>
 
-                <!-- Section: Documents administratifs -->
-                <div class="md:col-span-2 mt-6">
-                    <h2 class="text-lg font-semibold text-gray-700 border-b pb-2 mb-4">Documents administratifs</h2>
-                </div>
-
                 <div>
-                    <label for="date_debut_relation" class="block text-sm font-medium text-gray-700 mb-1">Date de début de relation commerciale</label>
-                    <input type="date" name="date_debut_relation" id="date_debut_relation" value="{{ old('date_debut_relation', $fournisseur->date_debut_relation) }}" 
+                    <label for="date_debut_relation" class="block text-sm font-medium text-gray-700 mb-1">Date de début de relation</label>
+                    <input type="date" name="date_debut_relation" id="date_debut_relation" value="{{ old('date_debut_relation', $fournisseur->date_debut_relation ? $fournisseur->date_debut_relation->format('Y-m-d') : '') }}" 
                         class="w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring focus:ring-red-200 @error('date_debut_relation') border-red-500 @enderror">
                     @error('date_debut_relation')
                         <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                     @enderror
                 </div>
 
-                <div class="md:col-span-2">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Documents existants</label>
-                    
-                    @if($fournisseur->documents->count() > 0)
-                        <div class="space-y-2 mb-4">
-                            @foreach($fournisseur->documents as $document)
-                            <div class="flex items-center justify-between p-3 border rounded-md">
-                                <div>
-                                    <p class="font-medium">{{ $document->nom }}</p>
-                                    <p class="text-xs text-gray-500">Ajouté le {{ date('d/m/Y', strtotime($document->created_at)) }}</p>
-                                </div>
-                                <div class="flex space-x-2">
-                                    <a href="{{ route('fournisseurs.documents.download', $document->id) }}" class="text-blue-600 hover:text-blue-800" title="Télécharger">
-                                        <i class="fas fa-download"></i>
-                                    </a>
-                                    <form action="{{ route('fournisseurs.documents.destroy', $document->id) }}" method="POST" class="inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce document ?');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="text-red-600 hover:text-red-800" title="Supprimer">
-                                            <i class="fas fa-trash-alt"></i>
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
-                            @endforeach
-                        </div>
-                    @else
-                        <p class="text-gray-500 italic mb-4">Aucun document disponible</p>
-                    @endif
-                    
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Ajouter de nouveaux documents</label>
-                    
-                    <div class="space-y-4">
-                        <!-- Contrat cadre -->
-                        <div class="border rounded-md p-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Contrat cadre / Devis / CGV</label>
-                            <input type="file" name="contrat_cadre" id="contrat_cadre" 
-                                class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-red-50 file:text-red-700 hover:file:bg-red-100">
-                            @error('contrat_cadre')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-                        
-                        <!-- RCCM -->
-                        <div class="border rounded-md p-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">RCCM</label>
-                            <input type="file" name="rccm_document" id="rccm_document" 
-                                class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-red-50 file:text-red-700 hover:file:bg-red-100">
-                            @error('rccm_document')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-                        
-                        <!-- Attestation fiscale -->
-                        <div class="border rounded-md p-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Attestation fiscale</label>
-                            <input type="file" name="attestation_fiscale" id="attestation_fiscale" 
-                                class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-red-50 file:text-red-700 hover:file:bg-red-100">
-                            @error('attestation_fiscale')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-                        
-                        <!-- Autre document -->
-                        <div class="border rounded-md p-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Autre document</label>
-                            <input type="file" name="autre_document" id="autre_document" 
-                                class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-red-50 file:text-red-700 hover:file:bg-red-100">
-                            @error('autre_document')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-                    </div>
+                <!-- Section: Documents -->
+                <div class="md:col-span-2 mt-6">
+                    <h2 class="text-lg font-semibold text-gray-700 border-b pb-2 mb-4">Documents</h2>
                 </div>
-            </div>
 
-            <div class="mt-8 flex justify-end space-x-3">
-                <a href="{{ route('fournisseurs.show', $fournisseur->id) }}" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded">
-                    <i class="fas fa-times mr-2"></i> Annuler
-                </a>
-                <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
-                    <i class="fas fa-save mr-2"></i> Enregistrer les modifications
-                </button>
+                <div>
+                    <label for="contrat_cadre" class="block text-sm font-medium text-gray-700 mb-1">Contrat cadre</label>
+                    <input type="file" name="contrat_cadre" id="contrat_cadre" 
+                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring focus:ring-red-200 @error('contrat_cadre') border-red-500 @enderror">
+                    <p class="text-xs text-gray-500 mt-1">Formats acceptés: PDF, DOC, DOCX, JPG, JPEG, PNG (max 10MB)</p>
+                    @if($fournisseur->documents->where('type_document', 'Contrat Cadre')->first())
+                        <p class="text-xs text-green-600 mt-1">
+                            <i class="fas fa-check-circle mr-1"></i> 
+                            Document existant: <a href="{{ Storage::url($fournisseur->documents->where('type_document', 'Contrat Cadre')->first()->chemin_fichier) }}" target="_blank" class="underline">Voir le document</a>
+                        </p>
+                    @endif
+                    @error('contrat_cadre')
+                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label for="rccm_document" class="block text-sm font-medium text-gray-700 mb-1">RCCM</label>
+                    <input type="file" name="rccm_document" id="rccm_document" 
+                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring focus:ring-red-200 @error('rccm_document') border-red-500 @enderror">
+                    <p class="text-xs text-gray-500 mt-1">Formats acceptés: PDF, DOC, DOCX, JPG, JPEG, PNG (max 10MB)</p>
+                    @if($fournisseur->documents->where('type_document', 'RCCM')->first())
+                        <p class="text-xs text-green-600 mt-1">
+                            <i class="fas fa-check-circle mr-1"></i> 
+                            Document existant: <a href="{{ Storage::url($fournisseur->documents->where('type_document', 'RCCM')->first()->chemin_fichier) }}" target="_blank" class="underline">Voir le document</a>
+                        </p>
+                    @endif
+                    @error('rccm_document')
+                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label for="attestation_fiscale" class="block text-sm font-medium text-gray-700 mb-1">Attestation fiscale</label>
+                    <input type="file" name="attestation_fiscale" id="attestation_fiscale" 
+                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring focus:ring-red-200 @error('attestation_fiscale') border-red-500 @enderror">
+                    <p class="text-xs text-gray-500 mt-1">Formats acceptés: PDF, DOC, DOCX, JPG, JPEG, PNG (max 10MB)</p>
+                    @if($fournisseur->documents->where('type_document', 'Attestation Fiscale')->first())
+                        <p class="text-xs text-green-600 mt-1">
+                            <i class="fas fa-check-circle mr-1"></i> 
+                            Document existant: <a href="{{ Storage::url($fournisseur->documents->where('type_document', 'Attestation Fiscale')->first()->chemin_fichier) }}" target="_blank" class="underline">Voir le document</a>
+                        </p>
+                    @endif
+                    @error('attestation_fiscale')
+                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label for="autre_document" class="block text-sm font-medium text-gray-700 mb-1">Autre document</label>
+                    <input type="file" name="autre_document" id="autre_document" 
+                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring focus:ring-red-200 @error('autre_document') border-red-500 @enderror">
+                    <p class="text-xs text-gray-500 mt-1">Formats acceptés: PDF, DOC, DOCX, JPG, JPEG, PNG (max 10MB)</p>
+                    @if($fournisseur->documents->where('type_document', 'Autre Document')->first())
+                        <p class="text-xs text-green-600 mt-1">
+                            <i class="fas fa-check-circle mr-1"></i> 
+                            Document existant: <a href="{{ Storage::url($fournisseur->documents->where('type_document', 'Autre Document')->first()->chemin_fichier) }}" target="_blank" class="underline">Voir le document</a>
+                        </p>
+                    @endif
+                    @error('autre_document')
+                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Boutons d'action -->
+                <div class="md:col-span-2 flex justify-end space-x-3 mt-6">
+                    <a href="{{ route('fournisseurs.show', $fournisseur->id) }}" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded">
+                        <i class="fas fa-times mr-2"></i> Annuler
+                    </a>
+                    <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
+                        <i class="fas fa-save mr-2"></i> Mettre à jour
+                    </button>
+                </div>
             </div>
         </form>
     </div>

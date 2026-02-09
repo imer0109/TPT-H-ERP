@@ -12,14 +12,16 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        User::factory()->create([
-            'nom' => 'Admin',
-            'prenom' => 'System',
-            'email' => 'admin@tpth.erp',
-            'telephone' => '0123456789',
-            'password' => Hash::make('password'),
-            'statut' => 'actif'
-        ]);
+        User::firstOrCreate(
+            ['email' => 'admin@tpth.erp'],
+            [
+                'nom' => 'Admin',
+                'prenom' => 'System',
+                'telephone' => '0123456789',
+                'password' => Hash::make('password'),
+                'statut' => 'actif'
+            ]
+        );
 
         TypeProduct::factory()->create([
             'name' => 'Logiciel',
@@ -33,5 +35,20 @@ class DatabaseSeeder extends Seeder
             'type_product_id' => TypeProduct::query()->first()->id,
             'name' => 'App Mobile',
         ]);
+        
+        // Seed transaction natures
+        $this->call(TransactionNatureSeeder::class);
+        
+        // Seed supplier permissions and roles
+        $this->call(SupplierPermissionsSeeder::class);
+        
+        // Seed purchase validation workflows
+        $this->call(PurchaseValidationWorkflowSeeder::class);
+        
+        // Seed all roles and permissions
+        $this->call(RolesAndPermissionsSeeder::class);
+
+        // Seed complete user list with roles
+        $this->call(CompleteUserSeeder::class);
     }
 }

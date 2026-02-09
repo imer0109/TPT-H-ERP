@@ -3,147 +3,121 @@
 namespace App\Http\Controllers;
 
 use App\Models\StockInventory;
-use App\Models\StockInventoryItem;
-use App\Models\Warehouse;
-use App\Models\Product;
 use App\Models\StockMovement;
-use App\Http\Requests\StockInventoryRequest;
+use App\Models\Warehouse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
 
 class StockInventoryController extends Controller
 {
     public function index(Request $request)
     {
-        $query = StockInventory::with(['warehouse', 'createdBy', 'validatedBy']);
+        $query = StockInventory::with(['warehouse', 'createdBy']);
         
-        if ($request->has('status')) {
-            $query->where('status', $request->status);
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function($q) use ($search) {
+                $q->where('reference', 'like', "%{$search}%")
+                  ->orWhereHas('warehouse', function($w) use ($search) {
+                      $w->where('nom', 'like', "%{$search}%");
+                  });
+            });
         }
         
-        if ($request->has('warehouse_id')) {
-            $query->where('warehouse_id', $request->warehouse_id);
+        if ($request->filled('status')) {
+            $query->where('status', $request->input('status'));
         }
         
-        if ($request->has('date_start') && $request->has('date_end')) {
-            $query->whereBetween('created_at', [$request->date_start, $request->date_end]);
+        if ($request->filled('warehouse_id')) {
+            $query->where('warehouse_id', $request->input('warehouse_id'));
         }
         
-        $inventories = $query->latest()->paginate(15);
-        $warehouses = Warehouse::where('actif', true)->pluck('nom', 'id');
+        $inventories = $query->orderBy('created_at', 'desc')->paginate(15);
+        $warehouses = \App\Models\Warehouse::orderBy('nom')->pluck('nom', 'id');
         
         return view('stock.inventories.index', compact('inventories', 'warehouses'));
     }
-
+    
     public function create()
     {
-        $warehouses = Warehouse::where('actif', true)->pluck('nom', 'id');
+        $warehouses = \App\Models\Warehouse::orderBy('nom')->pluck('nom', 'id');
         return view('stock.inventories.create', compact('warehouses'));
     }
-
-    public function store(StockInventoryRequest $request)
+    
+    public function store(Request $request)
     {
-        DB::beginTransaction();
+        $validated = $request->validate([
+            'warehouse_id' => 'required|exists:warehouses,id',
+            'notes' => 'nullable|string|max:500',
+            'date' => 'required|date'
+        ]);
         
         try {
             $inventory = StockInventory::create([
-                'warehouse_id' => $request->warehouse_id,
-                'date' => $request->date,
-                'notes' => $request->notes,
+                'reference' => 'INV-' . date('Ymd') . '-' . strtoupper(\Illuminate\Support\Str::random(4)),
+                'warehouse_id' => $validated['warehouse_id'],
+                'notes' => $validated['notes'],
+                'date' => $validated['date'],
                 'status' => 'en_cours',
-                'created_by' => auth()->id(),
-                'reference' => 'INV-' . date('YmdHis')
+                'created_by' => Auth::id()
             ]);
-            
-            // Récupérer tous les produits actifs
-            $products = Product::where('actif', true)->get();
-            
-            // Pour chaque produit, créer un élément d'inventaire
-            foreach ($products as $product) {
-                // Calculer le stock théorique pour ce produit dans ce dépôt
-                $theoreticalStock = $this->calculateTheoreticalStock($product->id, $request->warehouse_id);
-                
-                StockInventoryItem::create([
-                    'inventory_id' => $inventory->id,
-                    'product_id' => $product->id,
-                    'theoretical_quantity' => $theoreticalStock,
-                    'actual_quantity' => null,
-                    'difference' => null,
-                    'notes' => null
-                ]);
-            }
-            
-            DB::commit();
             
             return redirect()->route('stock.inventories.show', $inventory)
                 ->with('success', 'Inventaire créé avec succès');
         } catch (\Exception $e) {
-            DB::rollBack();
             return redirect()->back()
                 ->with('error', 'Erreur lors de la création de l\'inventaire: ' . $e->getMessage())
                 ->withInput();
         }
     }
-
+    
     public function show(StockInventory $inventory)
     {
         $inventory->load(['warehouse', 'createdBy', 'validatedBy', 'items.product']);
         return view('stock.inventories.show', compact('inventory'));
     }
-
+    
     public function edit(StockInventory $inventory)
     {
         if ($inventory->status !== 'en_cours') {
             return redirect()->route('stock.inventories.show', $inventory)
-                ->with('error', 'Cet inventaire ne peut plus être modifié');
+                ->with('error', 'Cet inventaire ne peut pas être modifié');
         }
         
         $inventory->load(['warehouse', 'items.product']);
         return view('stock.inventories.edit', compact('inventory'));
     }
-
+    
     public function update(Request $request, StockInventory $inventory)
     {
         if ($inventory->status !== 'en_cours') {
             return redirect()->route('stock.inventories.show', $inventory)
-                ->with('error', 'Cet inventaire ne peut plus être modifié');
+                ->with('error', 'Cet inventaire ne peut pas être modifié');
         }
         
-        DB::beginTransaction();
-        
         try {
-            // Mettre à jour les notes de l'inventaire
-            $inventory->update([
-                'notes' => $request->notes
-            ]);
-            
-            // Mettre à jour les quantités réelles et les notes pour chaque élément
-            foreach ($request->items as $itemId => $itemData) {
-                $item = StockInventoryItem::findOrFail($itemId);
-                
-                $actualQuantity = $itemData['actual_quantity'] !== '' ? $itemData['actual_quantity'] : null;
-                $difference = $actualQuantity !== null ? $actualQuantity - $item->theoretical_quantity : null;
-                
-                $item->update([
-                    'actual_quantity' => $actualQuantity,
-                    'difference' => $difference,
-                    'notes' => $itemData['notes'] ?? null
-                ]);
+            foreach ($request->input('items', []) as $itemId => $data) {
+                $item = $inventory->items()->find($itemId);
+                if ($item) {
+                    $item->update([
+                        'actual_quantity' => $data['actual_quantity'] ?? null,
+                        'comment' => $data['comment'] ?? null
+                    ]);
+                }
             }
-            
-            DB::commit();
             
             return redirect()->route('stock.inventories.show', $inventory)
                 ->with('success', 'Inventaire mis à jour avec succès');
         } catch (\Exception $e) {
-            DB::rollBack();
             return redirect()->back()
                 ->with('error', 'Erreur lors de la mise à jour de l\'inventaire: ' . $e->getMessage())
                 ->withInput();
         }
     }
-
-    public function validate(StockInventory $inventory)
+    
+    public function validateInventory(StockInventory $inventory)
     {
         if ($inventory->status !== 'en_cours') {
             return redirect()->route('stock.inventories.show', $inventory)
@@ -164,7 +138,7 @@ class StockInventoryController extends Controller
             // Mettre à jour le statut de l'inventaire
             $inventory->update([
                 'status' => 'valide',
-                'validated_by' => auth()->id(),
+                'validated_by' => Auth::id(),
                 'validated_at' => now()
             ]);
             
@@ -183,7 +157,7 @@ class StockInventoryController extends Controller
                         'prix_unitaire' => $item->product->prix_achat,
                         'montant_total' => $quantity * $item->product->prix_achat,
                         'motif' => $motif,
-                        'created_by' => auth()->id(),
+                        'created_by' => Auth::id(),
                         'source_type' => 'App\\Models\\StockInventory',
                         'source_id' => $inventory->id
                     ]);
@@ -191,6 +165,9 @@ class StockInventoryController extends Controller
             }
             
             DB::commit();
+            
+            // Recharger l'inventaire avec ses relations pour l'affichage
+            $inventory->load(['warehouse', 'createdBy', 'validatedBy', 'items.product']);
             
             return redirect()->route('stock.inventories.show', $inventory)
                 ->with('success', 'Inventaire validé avec succès');
@@ -200,7 +177,7 @@ class StockInventoryController extends Controller
                 ->with('error', 'Erreur lors de la validation de l\'inventaire: ' . $e->getMessage());
         }
     }
-
+    
     private function calculateTheoreticalStock($productId, $warehouseId)
     {
         // Calculer le stock théorique en fonction des mouvements de stock
@@ -215,5 +192,16 @@ class StockInventoryController extends Controller
             ->sum('quantite');
             
         return $entrees - $sorties;
+    }
+    
+    public function generatePdf(StockInventory $inventory)
+    {
+        $inventory->load(['warehouse', 'createdBy', 'validatedBy', 'items.product']);
+        
+        // Utilisation de la façade PDF correctement configurée
+        $pdf = \Illuminate\Support\Facades\App::make('dompdf.wrapper');
+        $pdf->loadView('stock.inventories.pdf', compact('inventory'));
+        
+        return $pdf->download('inventaire-' . $inventory->reference . '.pdf');
     }
 }

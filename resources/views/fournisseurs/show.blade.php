@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('content')
 <div class="container mx-auto px-4 py-6">
@@ -56,7 +56,7 @@
                     <p class="text-sm font-medium text-gray-500">Activité</p>
                     <p class="text-base font-medium">
                         @if($fournisseur->activite == 'transport')
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800">
                                 <i class="fas fa-truck mr-1"></i> Transport
                             </span>
                         @elseif($fournisseur->activite == 'logistique')
@@ -81,7 +81,7 @@
                 
                 <div>
                     <p class="text-sm font-medium text-gray-500">Société / Agence</p>
-                    <p class="text-base font-medium">{{ $fournisseur->societe->nom ?? '-' }}</p>
+                    <p class="text-base font-medium">{{ $fournisseur->societe->raison_sociale ?? '-' }}</p>
                 </div>
                 
                 <div>
@@ -144,7 +144,7 @@
                 <div>
                     <p class="text-sm font-medium text-gray-500">Téléphone</p>
                     <p class="text-base font-medium">
-                        <a href="tel:{{ $fournisseur->telephone }}" class="text-blue-600 hover:text-blue-800">
+                        <a href="tel:{{ $fournisseur->telephone }}" class="text-primary-600 hover:text-primary-800">
                             <i class="fas fa-phone-alt mr-1"></i> {{ $fournisseur->telephone }}
                         </a>
                     </p>
@@ -165,7 +165,7 @@
                 <div>
                     <p class="text-sm font-medium text-gray-500">Email</p>
                     <p class="text-base font-medium">
-                        <a href="mailto:{{ $fournisseur->email }}" class="text-blue-600 hover:text-blue-800">
+                        <a href="mailto:{{ $fournisseur->email }}" class="text-primary-600 hover:text-primary-800">
                             <i class="fas fa-envelope mr-1"></i> {{ $fournisseur->email }}
                         </a>
                     </p>
@@ -176,7 +176,7 @@
                 <div>
                     <p class="text-sm font-medium text-gray-500">Site web</p>
                     <p class="text-base font-medium">
-                        <a href="{{ $fournisseur->site_web }}" target="_blank" class="text-blue-600 hover:text-blue-800">
+                        <a href="{{ $fournisseur->site_web }}" target="_blank" class="text-primary-600 hover:text-primary-800">
                             <i class="fas fa-globe mr-1"></i> {{ $fournisseur->site_web }}
                         </a>
                     </p>
@@ -201,17 +201,27 @@
                 </div>
                 
                 <div>
-                    <p class="text-sm font-medium text-gray-500">Devise préférée</p>
-                    <p class="text-base font-medium">{{ $fournisseur->devise ?: '-' }}</p>
+                    <p class="text-sm font-medium text-gray-500">Devise par défaut</p>
+                    <p class="text-base font-medium">
+                        @if($fournisseur->devise == 'XOF')
+                            Franc CFA (XOF)
+                        @elseif($fournisseur->devise == 'EUR')
+                            Euro (EUR)
+                        @elseif($fournisseur->devise == 'USD')
+                            Dollar US (USD)
+                        @else
+                            {{ $fournisseur->devise ?: '-' }}
+                        @endif
+                    </p>
                 </div>
                 
                 <div>
-                    <p class="text-sm font-medium text-gray-500">Conditions de règlement</p>
+                    <p class="text-sm font-medium text-gray-500">Condition de règlement</p>
                     <p class="text-base font-medium">
                         @if($fournisseur->condition_reglement == 'comptant')
                             Comptant
                         @elseif($fournisseur->condition_reglement == 'credit')
-                            À crédit
+                            Crédit
                         @else
                             {{ $fournisseur->condition_reglement ?: '-' }}
                         @endif
@@ -220,288 +230,309 @@
                 
                 <div>
                     <p class="text-sm font-medium text-gray-500">Délai de paiement</p>
-                    <p class="text-base font-medium">{{ $fournisseur->delai_paiement ? $fournisseur->delai_paiement.' jours' : '-' }}</p>
+                    <p class="text-base font-medium">{{ $fournisseur->delai_paiement ? $fournisseur->delai_paiement . ' jours' : '-' }}</p>
                 </div>
                 
                 <div>
-                    <p class="text-sm font-medium text-gray-500">Plafond de crédit autorisé</p>
-                    <p class="text-base font-medium">{{ $fournisseur->plafond_credit ? number_format($fournisseur->plafond_credit, 0, ',', ' ').' '.$fournisseur->devise : '-' }}</p>
+                    <p class="text-sm font-medium text-gray-500">Plafond de crédit</p>
+                    <p class="text-base font-medium">{{ $fournisseur->plafond_credit ? number_format($fournisseur->plafond_credit, 2) . ' ' . ($fournisseur->devise ?: 'XOF') : '-' }}</p>
                 </div>
                 
                 <div>
                     <p class="text-sm font-medium text-gray-500">Date de début de relation</p>
-                    <p class="text-base font-medium">{{ $fournisseur->date_debut_relation ? date('d/m/Y', strtotime($fournisseur->date_debut_relation)) : '-' }}</p>
+                    <p class="text-base font-medium">{{ $fournisseur->date_debut_relation ? $fournisseur->date_debut_relation->format('d/m/Y') : '-' }}</p>
                 </div>
             </div>
         </div>
         
-        <!-- Documents administratifs -->
+        <!-- Documents -->
         <div class="bg-white rounded-lg shadow-md p-6">
-            <h2 class="text-lg font-semibold text-gray-700 border-b pb-2 mb-4">Documents administratifs</h2>
+            <h2 class="text-lg font-semibold text-gray-700 border-b pb-2 mb-4">Documents</h2>
             
-            <div class="space-y-4">
-                @if($fournisseur->documents->count() > 0)
-                    @foreach($fournisseur->documents as $document)
-                    <div class="flex items-center justify-between p-3 border rounded-md">
-                        <div>
-                            <p class="font-medium">{{ $document->nom }}</p>
-                            <p class="text-xs text-gray-500">Ajouté le {{ date('d/m/Y', strtotime($document->created_at)) }}</p>
+            <div class="space-y-3">
+                @forelse($fournisseur->documents as $document)
+                    <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
+                        <div class="flex items-center">
+                            <i class="fas fa-file mr-2 text-gray-500"></i>
+                            <div>
+                                <p class="text-sm font-medium">{{ $document->type_document }}</p>
+                                <p class="text-xs text-gray-500">{{ $document->nom_fichier }}</p>
+                            </div>
                         </div>
-                        <div class="flex space-x-2">
-                            <a href="{{ route('fournisseurs.documents.download', $document->id) }}" class="text-blue-600 hover:text-blue-800" title="Télécharger">
-                                <i class="fas fa-download"></i>
-                            </a>
-                            <form action="{{ route('fournisseurs.documents.destroy', $document->id) }}" method="POST" class="inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce document ?');">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="text-red-600 hover:text-red-800" title="Supprimer">
-                                    <i class="fas fa-trash-alt"></i>
-                                </button>
-                            </form>
+                        <a href="{{ Storage::url($document->chemin_fichier) }}" target="_blank" class="text-primary-600 hover:text-primary-800">
+                            <i class="fas fa-download"></i>
+                        </a>
+                    </div>
+                @empty
+                    <p class="text-sm text-gray-500 text-center py-4">Aucun document disponible</p>
+                @endforelse
+            </div>
+        </div>
+        
+        <!-- Évaluations -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-semibold text-gray-700">Évaluations</h2>
+                <a href="{{ route('fournisseurs.ratings.create', $fournisseur) }}" class="bg-primary-600 hover:bg-primary-700 text-white text-sm font-bold py-2 px-4 rounded">
+                    <i class="fas fa-plus mr-2"></i> Nouvelle évaluation
+                </a>
+            </div>
+            
+            @if($fournisseur->ratings->count() > 0)
+                <div class="mb-4">
+                    <div class="flex items-center">
+                        <div class="text-3xl font-bold mr-4">{{ number_format($fournisseur->average_rating, 1) }}</div>
+                        <div>
+                            <div class="flex">
+                                @for ($i = 1; $i <= 5; $i++)
+                                    @if($i <= round($fournisseur->average_rating))
+                                        <i class="fas fa-star text-yellow-400"></i>
+                                    @else
+                                        <i class="far fa-star text-gray-300"></i>
+                                    @endif
+                                @endfor
+                            </div>
+                            <div class="text-sm text-gray-500">{{ $fournisseur->rating_count }} évaluation(s)</div>
                         </div>
                     </div>
-                    @endforeach
-                @else
-                    <p class="text-gray-500 italic">Aucun document disponible</p>
-                @endif
-                
-                <div class="mt-4">
-                    <a href="#" onclick="document.getElementById('uploadDocumentForm').classList.toggle('hidden')" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold py-2 px-4 rounded inline-flex items-center">
-                        <i class="fas fa-upload mr-2"></i> Ajouter un document
-                    </a>
-                    
-                    <form id="uploadDocumentForm" action="{{ route('fournisseurs.documents.store', $fournisseur->id) }}" method="POST" enctype="multipart/form-data" class="hidden mt-4 p-4 border rounded-md">
-                        @csrf
-                        <div class="mb-3">
-                            <label for="document_type" class="block text-sm font-medium text-gray-700 mb-1">Type de document</label>
-                            <select name="document_type" id="document_type" required 
-                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring focus:ring-red-200">
-                                <option value="">Sélectionner un type</option>
-                                <option value="contrat_cadre">Contrat cadre / Devis / CGV</option>
-                                <option value="rccm">RCCM</option>
-                                <option value="attestation_fiscale">Attestation fiscale</option>
-                                <option value="autre">Autre document</option>
-                            </select>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="document_file" class="block text-sm font-medium text-gray-700 mb-1">Fichier</label>
-                            <input type="file" name="document_file" id="document_file" required 
-                                class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-red-50 file:text-red-700 hover:file:bg-red-100">
-                        </div>
-                        
-                        <div class="flex justify-end space-x-2">
-                            <button type="button" onclick="document.getElementById('uploadDocumentForm').classList.add('hidden')" class="bg-gray-500 hover:bg-gray-600 text-white text-sm font-bold py-2 px-4 rounded">
-                                Annuler
-                            </button>
-                            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold py-2 px-4 rounded">
-                                <i class="fas fa-upload mr-2"></i> Téléverser
-                            </button>
-                        </div>
-                    </form>
                 </div>
+                
+                <div class="space-y-4">
+                    @foreach($fournisseur->ratings->sortByDesc('created_at')->take(5) as $rating)
+                        <div class="border rounded-lg p-4">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="flex">
+                                        @for ($i = 1; $i <= 5; $i++)
+                                            @if($i <= $rating->overall_score)
+                                                <i class="fas fa-star text-yellow-400"></i>
+                                            @else
+                                                <i class="far fa-star text-gray-300"></i>
+                                            @endif
+                                        @endfor
+                                    </div>
+                                    <div class="text-xs text-gray-500 mt-1">Évalué par {{ $rating->evaluator->name ?? 'Système' }} le {{ $rating->evaluation_date->format('d/m/Y') }}</div>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <a href="{{ route('fournisseurs.ratings.edit', $rating) }}" class="text-primary-600 hover:text-primary-800">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <form action="{{ route('fournisseurs.ratings.destroy', $rating) }}" method="POST" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette évaluation ?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="text-red-600 hover:text-red-800">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                            @if($rating->comments)
+                                <div class="mt-2 text-sm text-gray-700">
+                                    {{ $rating->comments }}
+                                </div>
+                            @endif
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mt-3 text-xs">
+                                <div>
+                                    <div class="text-gray-500">Qualité</div>
+                                    <div class="font-medium">{{ $rating->quality_rating }}/5</div>
+                                </div>
+                                <div>
+                                    <div class="text-gray-500">Livraison</div>
+                                    <div class="font-medium">{{ $rating->delivery_rating }}/5</div>
+                                </div>
+                                <div>
+                                    <div class="text-gray-500">Réactivité</div>
+                                    <div class="font-medium">{{ $rating->responsiveness_rating }}/5</div>
+                                </div>
+                                <div>
+                                    <div class="text-gray-500">Prix</div>
+                                    <div class="font-medium">{{ $rating->pricing_rating }}/5</div>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            @else
+                <div class="text-center py-8 text-gray-500">
+                    <i class="fas fa-star text-4xl mb-2"></i>
+                    <p>Aucune évaluation pour ce fournisseur</p>
+                    <a href="{{ route('fournisseurs.ratings.create', $fournisseur) }}" class="mt-2 inline-block bg-primary-600 hover:bg-primary-700 text-white text-sm font-bold py-2 px-4 rounded">
+                        Ajouter une évaluation
+                    </a>
+                </div>
+            @endif
+        </div>
+        
+        <!-- Contrats -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-semibold text-gray-700">Contrats</h2>
+                <a href="{{ route('fournisseurs.contracts.create', ['fournisseur_id' => $fournisseur->id]) }}" class="bg-primary-600 hover:bg-primary-700 text-white text-sm font-bold py-2 px-4 rounded">
+                    <i class="fas fa-plus mr-2"></i> Nouveau contrat
+                </a>
             </div>
+            
+            @if($fournisseur->contracts->count() > 0)
+                <div class="space-y-4">
+                    @foreach($fournisseur->contracts->sortByDesc('created_at')->take(5) as $contract)
+                        <div class="border rounded-lg p-4 {{ $contract->isExpiringSoon() ? 'border-yellow-300 bg-yellow-50' : '' }} {{ $contract->isExpired() ? 'border-red-300 bg-red-50' : '' }}">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="flex items-center">
+                                        <h3 class="text-md font-medium text-gray-900">
+                                            <a href="{{ route('fournisseurs.contracts.show', $contract) }}" class="text-primary-600 hover:text-primary-800">
+                                                {{ $contract->contract_number }}
+                                            </a>
+                                        </h3>
+                                        <div class="ml-2">
+                                            {!! $contract->status_badge !!}
+                                        </div>
+                                    </div>
+                                    <p class="text-sm text-gray-500 mt-1">{{ $contract->contract_type }}</p>
+                                    <p class="text-sm text-gray-700 mt-1">{{ Str::limit($contract->description, 100) }}</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-sm font-medium text-gray-900">
+                                        {{ $contract->start_date->format('d/m/Y') }} - {{ $contract->end_date->format('d/m/Y') }}
+                                    </p>
+                                    @if($contract->isExpiringSoon())
+                                        <p class="text-xs text-yellow-600 mt-1">
+                                            <i class="fas fa-exclamation-triangle mr-1"></i>
+                                            Expire dans {{ $contract->days_until_expiry }} jours
+                                        </p>
+                                    @endif
+                                    @if($contract->isExpired())
+                                        <p class="text-xs text-red-600 mt-1">
+                                            <i class="fas fa-exclamation-circle mr-1"></i>
+                                            Expiré
+                                        </p>
+                                    @endif
+                                </div>
+                            </div>
+                            @if($contract->value)
+                                <div class="mt-2 text-sm text-gray-700">
+                                    Valeur: {{ number_format($contract->value, 2, ',', ' ') }} {{ $contract->currency }}
+                                </div>
+                            @endif
+                        </div>
+                    @endforeach
+                    @if($fournisseur->contracts->count() > 5)
+                        <div class="text-center mt-4">
+                            <a href="{{ route('fournisseurs.contracts.index', ['fournisseur_id' => $fournisseur->id]) }}" class="text-primary-600 hover:text-primary-800 text-sm font-medium">
+                                Voir tous les {{ $fournisseur->contracts->count() }} contrats
+                            </a>
+                        </div>
+                    @endif
+                </div>
+            @else
+                <div class="text-center py-8 text-gray-500">
+                    <i class="fas fa-file-contract text-4xl mb-2"></i>
+                    <p>Aucun contrat pour ce fournisseur</p>
+                    <a href="{{ route('fournisseurs.contracts.create', ['fournisseur_id' => $fournisseur->id]) }}" class="mt-2 inline-block bg-primary-600 hover:bg-primary-700 text-white text-sm font-bold py-2 px-4 rounded">
+                        Ajouter un contrat
+                    </a>
+                </div>
+            @endif
         </div>
     </div>
     
-    <!-- Onglets: Commandes, Livraisons, Paiements, Réclamations -->
-    <div class="mt-8">
-        <div class="border-b border-gray-200">
-            <nav class="-mb-px flex space-x-8">
-                <a href="#commandes" class="border-red-500 text-red-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm" onclick="showTab('commandes'); return false;">
-                    Commandes
-                </a>
-                <a href="#livraisons" class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm" onclick="showTab('livraisons'); return false;">
-                    Livraisons
-                </a>
-                <a href="#paiements" class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm" onclick="showTab('paiements'); return false;">
-                    Paiements
-                </a>
-                <a href="#reclamations" class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm" onclick="showTab('reclamations'); return false;">
-                    Réclamations
-                </a>
-            </nav>
-        </div>
+    <!-- Commandes, Livraisons, Paiements, Réclamations -->
+    <div class="mt-6 bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-lg font-semibold text-gray-700 border-b pb-2 mb-4">Historique des transactions</h2>
         
-        <!-- Contenu des onglets -->
-        <div id="commandes" class="py-4">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-medium">Commandes</h3>
-                <a href="{{ route('commandes.create', ['fournisseur_id' => $fournisseur->id]) }}" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
-                    <i class="fas fa-plus mr-2"></i> Nouvelle commande
-                </a>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <!-- Commandes -->
+            <div class="border rounded-lg p-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-md font-medium text-gray-700">Commandes</h3>
+                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-primary-100 text-primary-600">
+                        <i class="fas fa-shopping-cart"></i>
+                    </span>
+                </div>
+                <p class="mt-2 text-2xl font-bold text-center">{{ $commandes->count() }}</p>
+                <p class="text-xs text-gray-500 text-center mt-1">dernières commandes</p>
+                @if($commandes->count() > 0)
+                    <div class="mt-2 space-y-1">
+                        @foreach($commandes as $commande)
+                            <div class="text-xs p-1 bg-gray-50 rounded">
+                                <a href="{{ route('achats.orders.show', $commande->id) }}" class="text-primary-600 hover:text-primary-800">
+                                    {{ $commande->numero_commande }} - {{ number_format($commande->montant_total, 2) }} XOF
+                                </a>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
             </div>
             
-            <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">N° Commande</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Montant</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
-                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        @forelse($commandes as $commande)
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                <a href="{{ route('commandes.show', $commande->id) }}" class="text-red-600 hover:text-red-800">
-                                    {{ $commande->numero_commande }}
+            <!-- Livraisons -->
+            <div class="border rounded-lg p-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-md font-medium text-gray-700">Livraisons</h3>
+                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-green-100 text-green-600">
+                        <i class="fas fa-truck"></i>
+                    </span>
+                </div>
+                <p class="mt-2 text-2xl font-bold text-center">{{ $livraisons->count() }}</p>
+                <p class="text-xs text-gray-500 text-center mt-1">dernières livraisons</p>
+                @if($livraisons->count() > 0)
+                    <div class="mt-2 space-y-1">
+                        @foreach($livraisons as $livraison)
+                            <div class="text-xs p-1 bg-gray-50 rounded">
+                                <a href="{{ route('achats.deliveries.show', $livraison->id) }}" class="text-primary-600 hover:text-primary-800">
+                                    {{ $livraison->numero_livraison }} - {{ $livraison->quantite_recue }} articles
                                 </a>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {{ date('d/m/Y', strtotime($commande->date_commande)) }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {{ number_format($commande->montant_total, 0, ',', ' ') }} {{ $commande->devise }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                @if($commande->statut == 'en_attente')
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                                        <i class="fas fa-clock mr-1"></i> En attente
-                                    </span>
-                                @elseif($commande->statut == 'validee')
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                        <i class="fas fa-check mr-1"></i> Validée
-                                    </span>
-                                @elseif($commande->statut == 'livree')
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                        <i class="fas fa-truck mr-1"></i> Livrée
-                                    </span>
-                                @elseif($commande->statut == 'annulee')
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                        <i class="fas fa-times mr-1"></i> Annulée
-                                    </span>
-                                @endif
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <a href="{{ route('commandes.show', $commande->id) }}" class="text-blue-600 hover:text-blue-900" title="Voir">
-                                    <i class="fas fa-eye"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        @empty
-                        <tr>
-                            <td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500">
-                                Aucune commande trouvée.
-                            </td>
-                        </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        
-        <div id="livraisons" class="py-4 hidden">
-            <h3 class="text-lg font-medium mb-4">Livraisons</h3>
-            <div class="bg-white rounded-lg shadow-md p-6">
-                <p class="text-gray-500 italic">Aucune livraison disponible</p>
-            </div>
-        </div>
-        
-        <div id="paiements" class="py-4 hidden">
-            <h3 class="text-lg font-medium mb-4">Paiements</h3>
-            <div class="bg-white rounded-lg shadow-md p-6">
-                <p class="text-gray-500 italic">Aucun paiement disponible</p>
-            </div>
-        </div>
-        
-        <div id="reclamations" class="py-4 hidden">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-medium">Réclamations</h3>
-                <a href="{{ route('reclamations-fournisseurs.create', ['fournisseur_id' => $fournisseur->id]) }}" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
-                    <i class="fas fa-plus mr-2"></i> Nouvelle réclamation
-                </a>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
             </div>
             
-            <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Référence</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Objet</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
-                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        @forelse($reclamations as $reclamation)
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                <a href="{{ route('reclamations-fournisseurs.show', $reclamation->id) }}" class="text-red-600 hover:text-red-800">
-                                    {{ $reclamation->reference }}
+            <!-- Paiements -->
+            <div class="border rounded-lg p-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-md font-medium text-gray-700">Paiements</h3>
+                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-yellow-100 text-yellow-600">
+                        <i class="fas fa-money-bill-wave"></i>
+                    </span>
+                </div>
+                <p class="mt-2 text-2xl font-bold text-center">{{ $paiements->count() }}</p>
+                <p class="text-xs text-gray-500 text-center mt-1">derniers paiements</p>
+                @if($paiements->count() > 0)
+                    <div class="mt-2 space-y-1">
+                        @foreach($paiements as $paiement)
+                            <div class="text-xs p-1 bg-gray-50 rounded">
+                                <a href="{{ route('achats.payments.show', $paiement->id) }}" class="text-primary-600 hover:text-primary-800">
+                                    {{ $paiement->numero_paiement }} - {{ number_format($paiement->montant, 2) }} XOF
                                 </a>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {{ date('d/m/Y', strtotime($reclamation->date_reclamation)) }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {{ $reclamation->objet }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                @if($reclamation->statut == 'ouverte')
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                                        <i class="fas fa-exclamation-circle mr-1"></i> Ouverte
-                                    </span>
-                                @elseif($reclamation->statut == 'en_cours')
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                        <i class="fas fa-spinner mr-1"></i> En cours
-                                    </span>
-                                @elseif($reclamation->statut == 'resolue')
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                        <i class="fas fa-check-circle mr-1"></i> Résolue
-                                    </span>
-                                @elseif($reclamation->statut == 'fermee')
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                                        <i class="fas fa-times-circle mr-1"></i> Fermée
-                                    </span>
-                                @endif
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <a href="{{ route('reclamations-fournisseurs.show', $reclamation->id) }}" class="text-blue-600 hover:text-blue-900" title="Voir">
-                                    <i class="fas fa-eye"></i>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+            
+            <!-- Réclamations -->
+            <div class="border rounded-lg p-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-md font-medium text-gray-700">Réclamations</h3>
+                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-red-100 text-red-600">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </span>
+                </div>
+                <p class="mt-2 text-2xl font-bold text-center">{{ $reclamations->count() }}</p>
+                <p class="text-xs text-gray-500 text-center mt-1">dernières réclamations</p>
+                @if($reclamations->count() > 0)
+                    <div class="mt-2 space-y-1">
+                        @foreach($reclamations as $reclamation)
+                            <div class="text-xs p-1 bg-gray-50 rounded">
+                                <a href="{{ route('fournisseurs.issues.show', $reclamation->id) }}" class="text-primary-600 hover:text-primary-800">
+                                    {{ $reclamation->numero_reclamation }} - {{ ucfirst($reclamation->statut) }}
                                 </a>
-                            </td>
-                        </tr>
-                        @empty
-                        <tr>
-                            <td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500">
-                                Aucune réclamation trouvée.
-                            </td>
-                        </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
             </div>
         </div>
     </div>
 </div>
-
-@push('scripts')
-<script>
-    function showTab(tabId) {
-        // Cacher tous les contenus d'onglets
-        document.querySelectorAll('#commandes, #livraisons, #paiements, #reclamations').forEach(tab => {
-            tab.classList.add('hidden');
-        });
-        
-        // Afficher le contenu de l'onglet sélectionné
-        document.getElementById(tabId).classList.remove('hidden');
-        
-        // Mettre à jour les classes des liens d'onglets
-        document.querySelectorAll('nav a').forEach(link => {
-            link.classList.remove('border-red-500', 'text-red-600');
-            link.classList.add('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
-        });
-        
-        // Mettre en évidence l'onglet actif
-        document.querySelector(`a[href="#${tabId}"]`).classList.remove('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
-        document.querySelector(`a[href="#${tabId}"]`).classList.add('border-red-500', 'text-red-600');
-    }
-</script>
-@endpush
-
 @endsection

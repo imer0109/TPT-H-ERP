@@ -81,11 +81,11 @@
                                 </tr>
                                 <tr>
                                     <th>Poste</th>
-                                    <td>{{ $payslip->employee->position->title }}</td>
+                                    <td>{{ $payslip->employee->currentPosition->title ?? 'N/A' }}</td>
                                 </tr>
                                 <tr>
                                     <th>Département</th>
-                                    <td>{{ $payslip->employee->position->department }}</td>
+                                    <td>{{ $payslip->employee->currentPosition->title ?? 'N/A' }}</td>
                                 </tr>
                             </table>
                         </div>

@@ -1,306 +1,216 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('content')
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-md-3">
-            <div class="card card-primary card-outline">
-                <div class="card-body box-profile">
-                    <div class="text-center">
-                        <img class="profile-user-img img-fluid img-circle" 
-                             src="{{ $employee->photo ? asset('storage/' . $employee->photo) : asset('img/default-avatar.png') }}" 
-                             alt="Photo de l'employé">
+<div class="max-w-7xl mx-auto px-4 py-6">
+
+    {{-- GRID PRINCIPALE --}}
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+
+        {{-- SIDEBAR PROFIL --}}
+        <div class="bg-white shadow rounded-lg p-6">
+            <div class="flex flex-col items-center">
+
+                <img src="{{ $employee->photo ? asset('storage/' . $employee->photo) : asset('img/default-avatar.png') }}"
+                     class="w-28 h-28 rounded-full object-cover border">
+
+                <h2 class="mt-4 text-xl font-semibold">
+                    {{ $employee->last_name }} {{ $employee->first_name }}
+                </h2>
+
+                <p class="text-gray-500 text-sm">
+                    {{ $employee->currentPosition->title ?? 'Aucun poste' }}
+                </p>
+
+                <div class="w-full mt-6 space-y-2">
+                    <div class="flex justify-between text-sm border-b pb-2">
+                        <span class="font-medium">Matricule</span>
+                        <span>{{ $employee->matricule }}</span>
                     </div>
-                    <h3 class="profile-username text-center">{{ $employee->nom }} {{ $employee->prenom }}</h3>
-                    <p class="text-muted text-center">{{ $employee->position->title }}</p>
-                    <ul class="list-group list-group-unbordered mb-3">
-                        <li class="list-group-item">
-                            <b>Matricule</b> <a class="float-right">{{ $employee->matricule }}</a>
-                        </li>
-                        <li class="list-group-item">
-                            <b>Email</b> <a class="float-right">{{ $employee->email }}</a>
-                        </li>
-                        <li class="list-group-item">
-                            <b>Téléphone</b> <a class="float-right">{{ $employee->telephone }}</a>
-                        </li>
-                        <li class="list-group-item">
-                            <b>Statut</b> 
-                            <span class="float-right badge badge-{{ $employee->status === 'actif' ? 'success' : 'danger' }}">
-                                {{ ucfirst($employee->status) }}
-                            </span>
-                        </li>
-                    </ul>
-                    <div class="btn-group w-100">
-                        <a href="{{ route('employees.edit', $employee) }}" class="btn btn-warning">
-                            <i class="fas fa-edit"></i> Modifier
-                        </a>
-                        <button type="button" class="btn btn-danger" onclick="confirmDelete('{{ $employee->id }}')">
-                            <i class="fas fa-trash"></i> Supprimer
-                        </button>
+
+                    <div class="flex justify-between text-sm border-b pb-2">
+                        <span class="font-medium">Email</span>
+                        <span>{{ $employee->email }}</span>
+                    </div>
+
+                    <div class="flex justify-between text-sm border-b pb-2">
+                        <span class="font-medium">Téléphone</span>
+                        <span>{{ $employee->phone ?? 'N/A' }}</span>
+                    </div>
+
+                    <div class="flex justify-between text-sm border-b pb-2">
+                        <span class="font-medium">Statut</span>
+
+                        <span class="px-2 py-1 rounded text-white text-xs
+                            {{ $employee->status === 'actif' ? 'bg-green-600' : 'bg-red-600' }}">
+                            {{ ucfirst($employee->status) }}
+                        </span>
                     </div>
                 </div>
+
+                {{-- Boutons --}}
+                <div class="flex gap-2 mt-6 w-full">
+                    <a href="{{ route('hr.employees.edit', $employee) }}"
+                       class="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white py-2 rounded">
+                        Modifier
+                    </a>
+
+                    <button onclick="confirmDelete('{{ $employee->id }}')"
+                            class="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded">
+                        Supprimer
+                    </button>
+                </div>
+
             </div>
         </div>
-        
-        <div class="col-md-9">
-            <div class="card">
-                <div class="card-header p-2">
-                    <ul class="nav nav-pills">
-                        <li class="nav-item">
-                            <a class="nav-link active" href="#details" data-toggle="tab">Détails</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#contracts" data-toggle="tab">Contrats</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#leaves" data-toggle="tab">Congés</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#attendances" data-toggle="tab">Présences</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#evaluations" data-toggle="tab">Évaluations</a>
-                        </li>
-                    </ul>
-                </div>
-                <div class="card-body">
-                    <div class="tab-content">
-                        <div class="active tab-pane" id="details">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <h5>Informations Personnelles</h5>
-                                    <table class="table table-bordered">
-                                        <tr>
-                                            <th>Date de Naissance</th>
-                                            <td>{{ $employee->date_naissance->format('d/m/Y') }}</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Lieu de Naissance</th>
-                                            <td>{{ $employee->lieu_naissance }}</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Nationalité</th>
-                                            <td>{{ $employee->nationalite }}</td>
-                                        </tr>
-                                    </table>
-                                </div>
-                                <div class="col-md-6">
-                                    <h5>Informations Professionnelles</h5>
-                                    <table class="table table-bordered">
-                                        <tr>
-                                            <th>Département</th>
-                                            <td>{{ $employee->position->department }}</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Date d'Embauche</th>
-                                            <td>{{ $employee->date_embauche->format('d/m/Y') }}</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Superviseur</th>
-                                            <td>
-                                                @if($employee->supervisor)
-                                                    {{ $employee->supervisor->nom }} {{ $employee->supervisor->prenom }}
-                                                @else
-                                                    Non assigné
-                                                @endif
-                                            </td>
-                                        </tr>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="tab-pane" id="contracts">
-                            <div class="mb-3">
-                                <a href="{{ route('contracts.create', ['employee' => $employee->id]) }}" class="btn btn-primary">
-                                    <i class="fas fa-plus"></i> Nouveau Contrat
-                                </a>
-                            </div>
-                            <div class="table-responsive">
-                                <table class="table table-bordered table-striped">
-                                    <thead>
-                                        <tr>
-                                            <th>Type</th>
-                                            <th>Date Début</th>
-                                            <th>Date Fin</th>
-                                            <th>Salaire Base</th>
-                                            <th>Statut</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach($employee->contracts as $contract)
-                                        <tr>
-                                            <td>{{ $contract->type }}</td>
-                                            <td>{{ $contract->date_debut->format('d/m/Y') }}</td>
-                                            <td>{{ $contract->date_fin ? $contract->date_fin->format('d/m/Y') : 'Indéterminé' }}</td>
-                                            <td>{{ number_format($contract->salaire_base, 2, ',', ' ') }} FCFA</td>
-                                            <td>
-                                                <span class="badge badge-{{ $contract->isActive() ? 'success' : 'secondary' }}">
-                                                    {{ $contract->isActive() ? 'Actif' : 'Terminé' }}
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <div class="btn-group">
-                                                    <a href="{{ route('contracts.show', $contract) }}" class="btn btn-info btn-sm">
-                                                        <i class="fas fa-eye"></i>
-                                                    </a>
-                                                    <a href="{{ route('contracts.edit', $contract) }}" class="btn btn-warning btn-sm">
-                                                        <i class="fas fa-edit"></i>
-                                                    </a>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                        
-                        <div class="tab-pane" id="leaves">
-                            <div class="mb-3">
-                                <a href="{{ route('leaves.create', ['employee' => $employee->id]) }}" class="btn btn-primary">
-                                    <i class="fas fa-plus"></i> Nouvelle Demande
-                                </a>
-                            </div>
-                            <div class="table-responsive">
-                                <table class="table table-bordered table-striped">
-                                    <thead>
-                                        <tr>
-                                            <th>Type</th>
-                                            <th>Date Début</th>
-                                            <th>Date Fin</th>
-                                            <th>Durée</th>
-                                            <th>Statut</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach($employee->leaves as $leave)
-                                        <tr>
-                                            <td>{{ $leave->type->name }}</td>
-                                            <td>{{ $leave->date_debut->format('d/m/Y') }}</td>
-                                            <td>{{ $leave->date_fin->format('d/m/Y') }}</td>
-                                            <td>{{ $leave->duration }} jours</td>
-                                            <td>
-                                                <span class="badge badge-{{ $leave->status_color }}">
-                                                    {{ $leave->status_text }}
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <div class="btn-group">
-                                                    <a href="{{ route('leaves.show', $leave) }}" class="btn btn-info btn-sm">
-                                                        <i class="fas fa-eye"></i>
-                                                    </a>
-                                                    @if($leave->status === 'en_attente')
-                                                    <a href="{{ route('leaves.edit', $leave) }}" class="btn btn-warning btn-sm">
-                                                        <i class="fas fa-edit"></i>
-                                                    </a>
-                                                    @endif
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                        
-                        <div class="tab-pane" id="attendances">
-                            <div class="table-responsive">
-                                <table class="table table-bordered table-striped">
-                                    <thead>
-                                        <tr>
-                                            <th>Date</th>
-                                            <th>Arrivée</th>
-                                            <th>Départ</th>
-                                            <th>Retard</th>
-                                            <th>Heures Supp.</th>
-                                            <th>Statut</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach($employee->attendances->sortByDesc('date') as $attendance)
-                                        <tr>
-                                            <td>{{ $attendance->date->format('d/m/Y') }}</td>
-                                            <td>{{ $attendance->check_in ? $attendance->check_in->format('H:i') : '-' }}</td>
-                                            <td>{{ $attendance->check_out ? $attendance->check_out->format('H:i') : '-' }}</td>
-                                            <td>{{ $attendance->late_minutes }} min</td>
-                                            <td>{{ $attendance->overtime_minutes }} min</td>
-                                            <td>
-                                                <span class="badge badge-{{ $attendance->status_color }}">
-                                                    {{ $attendance->status_text }}
-                                                </span>
-                                            </td>
-                                        </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                        
-                        <div class="tab-pane" id="evaluations">
-                            <div class="mb-3">
-                                <a href="{{ route('evaluations.create', ['employee' => $employee->id]) }}" class="btn btn-primary">
-                                    <i class="fas fa-plus"></i> Nouvelle Évaluation
-                                </a>
-                            </div>
-                            <div class="table-responsive">
-                                <table class="table table-bordered table-striped">
-                                    <thead>
-                                        <tr>
-                                            <th>Période</th>
-                                            <th>Date</th>
-                                            <th>Évaluateur</th>
-                                            <th>Note</th>
-                                            <th>Statut</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach($employee->evaluations->sortByDesc('date') as $evaluation)
-                                        <tr>
-                                            <td>{{ $evaluation->period }}</td>
-                                            <td>{{ $evaluation->date->format('d/m/Y') }}</td>
-                                            <td>{{ $evaluation->evaluator->nom }} {{ $evaluation->evaluator->prenom }}</td>
-                                            <td>{{ number_format($evaluation->overall_score, 1) }}/5</td>
-                                            <td>
-                                                <span class="badge badge-{{ $evaluation->status_color }}">
-                                                    {{ $evaluation->status_text }}
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <div class="btn-group">
-                                                    <a href="{{ route('evaluations.show', $evaluation) }}" class="btn btn-info btn-sm">
-                                                        <i class="fas fa-eye"></i>
-                                                    </a>
-                                                    @if($evaluation->status === 'draft')
-                                                    <a href="{{ route('evaluations.edit', $evaluation) }}" class="btn btn-warning btn-sm">
-                                                        <i class="fas fa-edit"></i>
-                                                    </a>
-                                                    @endif
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
+
+        {{-- CONTENU PRINCIPAL --}}
+        <div class="lg:col-span-3 bg-white shadow rounded-lg p-6">
+
+            {{-- TABS NAV --}}
+            <ul class="flex border-b mb-6 space-x-4 text-sm font-medium">
+                <li><a href="#details" class="tab-link active-tab">Détails</a></li>
+                <li><a href="#contracts" class="tab-link">Contrats</a></li>
+                <li><a href="#leaves" class="tab-link">Congés</a></li>
+                <li><a href="#attendances" class="tab-link">Présences</a></li>
+                <li><a href="#evaluations" class="tab-link">Évaluations</a></li>
+                <li><a href="#assignments" class="tab-link">Affectations</a></li>
+            </ul>
+
+            {{-- NAVIGATION 1–6 --}}
+            <div class="flex flex-wrap gap-3 mb-6">
+
+                {{-- 1. Contrats --}}
+                <a href="{{ route('hr.contracts.index') }}"
+                   class="px-5 py-2 rounded-lg font-semibold transition
+                   {{ request()->routeIs('hr.contracts.*')
+                        ? 'bg-primary-600 text-white shadow-lg'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">
+                    Contrats
+                </a>
+
+                {{-- 2. Congés --}}
+                <a href="{{ route('hr.leaves.index') }}"
+                   class="px-5 py-2 rounded-lg font-semibold transition
+                   {{ request()->routeIs('hr.leaves.*')
+                        ? 'bg-primary-600 text-white shadow-lg'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">
+                    Congés
+                </a>
+
+                {{-- 3. Présences --}}
+                <a href="{{ route('hr.attendances.index') }}"
+                   class="px-5 py-2 rounded-lg font-semibold transition
+                   {{ request()->routeIs('hr.attendances.*')
+                        ? 'bg-primary-600 text-white shadow-lg'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">
+                    Présences
+                </a>
+
+                {{-- 4. Évaluations --}}
+                <a href="{{ route('hr.evaluations.index') }}"
+                   class="px-5 py-2 rounded-lg font-semibold transition
+                   {{ request()->routeIs('hr.evaluations.*')
+                        ? 'bg-primary-600 text-white shadow-lg'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">
+                    Évaluations
+                </a>
+
+                {{-- 5. Affectations --}}
+                <a href="#assignments"
+                   class="px-5 py-2 rounded-lg font-semibold transition
+                   {{ request()->routeIs('hr.employees.assignments.*')
+                        ? 'bg-primary-600 text-white shadow-lg'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}"
+                   onclick="document.querySelector('a[href=\'#assignments\']').click();">
+                    Affectations
+                </a>
+
+                {{-- 6. Autres --}}
+                <a href="#"
+                   class="px-5 py-2 rounded-lg font-semibold transition
+                   {{ request()->routeIs('autre.*')
+                        ? 'bg-primary-600 text-white shadow-lg'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">
+                    Autres
+                </a>
+
+            </div>
+
+            {{-- CONTENU DES TABS --}}
+            <div id="details" class="tab-content block">
+                <h3 class="text-lg font-semibold mb-4">Informations Personnelles</h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                    <table class="w-full text-sm">
+                        <tr class="border-b">
+                            <th class="py-2 font-medium">Date de naissance</th>
+                            <td>{{ $employee->birth_date ? $employee->birth_date->format('d/m/Y') : 'N/A' }}</td>
+                        </tr>
+                        <tr class="border-b">
+                            <th class="py-2 font-medium">Lieu de naissance</th>
+                            <td>{{ $employee->birth_place ?? 'N/A' }}</td>
+                        </tr>
+                        <tr class="border-b">
+                            <th class="py-2 font-medium">Nationalité</th>
+                            <td>{{ $employee->nationality ?? 'N/A' }}</td>
+                        </tr>
+                    </table>
+
+                    <table class="w-full text-sm">
+                        <tr class="border-b">
+                            <th class="py-2 font-medium">Poste actuel</th>
+                            <td>{{ $employee->currentPosition->title ?? 'N/A' }}</td>
+                        </tr>
+                        <tr class="border-b">
+                            <th class="py-2 font-medium">Date d'embauche</th>
+                            <td>{{ $employee->getDateEmbaucheAttribute()?->format('d/m/Y') ?? 'N/A' }}</td>
+                        </tr>
+                        <tr class="border-b">
+                            <th class="py-2 font-medium">Superviseur</th>
+                            <td>
+                                @if($employee->supervisor)
+                                    {{ $employee->supervisor->last_name }} {{ $employee->supervisor->first_name }}
+                                @else
+                                    Non assigné
+                                @endif
+                            </td>
+                        </tr>
+                    </table>
+
                 </div>
             </div>
+
         </div>
+
     </div>
 </div>
 
-@push('scripts')
+{{-- JS simple pour tabs --}}
 <script>
-function confirmDelete(employeeId) {
-    if (confirm('Êtes-vous sûr de vouloir supprimer cet employé ?')) {
-        document.getElementById('delete-form-' + employeeId).submit();
-    }
-}
+    const links = document.querySelectorAll('.tab-link');
+    const contents = document.querySelectorAll('.tab-content');
+
+    links.forEach(link => {
+        link.addEventListener('click', e => {
+            e.preventDefault();
+
+            links.forEach(l => l.classList.remove('active-tab'));
+            link.classList.add('active-tab');
+
+            contents.forEach(c => c.classList.add('hidden'));
+            const target = document.querySelector(link.getAttribute('href'));
+            target.classList.remove('hidden');
+        });
+    });
 </script>
-@endpush
+
+{{-- Styles Tailwind personnalisés --}}
+<style>
+    .tab-link { @apply pb-2 border-b-2 border-transparent text-gray-500 hover:text-gray-800; }
+    .active-tab { @apply text-primary-600 border-primary-600; }
+    .tab-content { @apply hidden; }
+    .tab-content.block { @apply block; }
+</style>
+
 @endsection

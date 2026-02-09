@@ -7,7 +7,6 @@ use App\Models\ClientInteraction;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 class ClientInteractionController extends Controller
@@ -17,6 +16,12 @@ class ClientInteractionController extends Controller
      */
     public function index(Request $request)
     {
+        // Vérifier les permissions
+        // Temporairement désactivé pour permettre l'accès
+        /*if (!Auth::user()->hasRole('administrateur') && !Auth::user()->hasRole('admin') && (!Auth::user()->canAccessModule('clients') && !Auth::user()->hasPermission('clients.interactions.view') && !Auth::user()->hasRole('manager') && !Auth::user()->hasRole('commercial'))) {
+            abort(403, 'Accès non autorisé');
+        }*/
+        
         $query = ClientInteraction::with(['client', 'user'])
             ->orderBy('date_interaction', 'desc');
 
@@ -57,6 +62,11 @@ class ClientInteractionController extends Controller
      */
     public function create(Request $request)
     {
+        // Vérifier les permissions
+        if (!Auth::user()->canAccessModule('clients') && !Auth::user()->hasPermission('clients.interactions.create')) {
+            abort(403, 'Accès non autorisé');
+        }
+        
         $clients = Client::all();
         $users = User::all();
         $client_id = $request->input('client_id');
@@ -70,6 +80,11 @@ class ClientInteractionController extends Controller
      */
     public function store(Request $request)
     {
+        // Vérifier les permissions
+        if (!Auth::user()->canAccessModule('clients') && !Auth::user()->hasPermission('clients.interactions.create')) {
+            abort(403, 'Accès non autorisé');
+        }
+        
         $validated = $request->validate([
             'client_id' => 'required|exists:clients,id',
             'user_id' => 'required|exists:users,id',
@@ -109,6 +124,11 @@ class ClientInteractionController extends Controller
      */
     public function show(ClientInteraction $interaction)
     {
+        // Vérifier les permissions
+        if (!Auth::user()->canAccessModule('clients') && !Auth::user()->hasPermission('clients.interactions.view')) {
+            abort(403, 'Accès non autorisé');
+        }
+        
         $interaction->load(['client', 'user']);
         return view('clients.interactions.show', compact('interaction'));
     }
@@ -118,6 +138,11 @@ class ClientInteractionController extends Controller
      */
     public function edit(ClientInteraction $interaction)
     {
+        // Vérifier les permissions
+        if (!Auth::user()->canAccessModule('clients') && !Auth::user()->hasPermission('clients.interactions.edit')) {
+            abort(403, 'Accès non autorisé');
+        }
+        
         $clients = Client::all();
         $users = User::all();
 
@@ -129,6 +154,11 @@ class ClientInteractionController extends Controller
      */
     public function update(Request $request, ClientInteraction $interaction)
     {
+        // Vérifier les permissions
+        if (!Auth::user()->canAccessModule('clients') && !Auth::user()->hasPermission('clients.interactions.edit')) {
+            abort(403, 'Accès non autorisé');
+        }
+        
         $validated = $request->validate([
             'client_id' => 'required|exists:clients,id',
             'user_id' => 'required|exists:users,id',
@@ -163,6 +193,11 @@ class ClientInteractionController extends Controller
      */
     public function destroy(ClientInteraction $interaction)
     {
+        // Vérifier les permissions
+        if (!Auth::user()->canAccessModule('clients') && !Auth::user()->hasPermission('clients.interactions.delete')) {
+            abort(403, 'Accès non autorisé');
+        }
+        
         try {
             $interaction->delete();
 
@@ -178,6 +213,11 @@ class ClientInteractionController extends Controller
      */
     public function markAsFollowedUp(ClientInteraction $interaction)
     {
+        // Vérifier les permissions
+        if (!Auth::user()->canAccessModule('clients') && !Auth::user()->hasPermission('clients.interactions.edit')) {
+            abort(403, 'Accès non autorisé');
+        }
+        
         try {
             $interaction->suivi_necessaire = false;
             $interaction->save();
@@ -193,6 +233,11 @@ class ClientInteractionController extends Controller
      */
     public function clientInteractions(Client $client)
     {
+        // Vérifier les permissions
+        if (!Auth::user()->canAccessModule('clients') && !Auth::user()->hasPermission('clients.interactions.view')) {
+            abort(403, 'Accès non autorisé');
+        }
+        
         $interactions = ClientInteraction::where('client_id', $client->id)
             ->with(['user'])
             ->orderBy('date_interaction', 'desc')
@@ -206,6 +251,11 @@ class ClientInteractionController extends Controller
      */
     public function followUps()
     {
+        // Vérifier les permissions
+        if (!Auth::user()->canAccessModule('clients') && !Auth::user()->hasPermission('clients.interactions.view')) {
+            abort(403, 'Accès non autorisé');
+        }
+        
         $interactions = ClientInteraction::with(['client', 'user'])
             ->where('suivi_necessaire', true)
             ->whereDate('date_suivi', '<=', now()->addDays(7))

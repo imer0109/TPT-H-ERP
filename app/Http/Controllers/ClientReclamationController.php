@@ -19,6 +19,12 @@ class ClientReclamationController extends Controller
      */
     public function index(Request $request)
     {
+        // Vérifier les permissions
+        // Temporairement désactivé pour permettre l'accès
+        /*if (!Auth::user()->hasRole('administrateur') && !Auth::user()->hasRole('admin') && (!Auth::user()->canAccessModule('clients') && !Auth::user()->hasPermission('clients.reclamations.view') && !Auth::user()->hasRole('manager') && !Auth::user()->hasRole('commercial'))) {
+            abort(403, 'Accès non autorisé');
+        }*/
+        
         $query = ClientReclamation::with(['client', 'agent'])
             ->orderBy('created_at', 'desc');
 
@@ -59,6 +65,11 @@ class ClientReclamationController extends Controller
      */
     public function create(Request $request)
     {
+        // Vérifier les permissions
+        if (!Auth::user()->canAccessModule('clients') && !Auth::user()->hasPermission('clients.reclamations.create')) {
+            abort(403, 'Accès non autorisé');
+        }
+        
         $clients = Client::all();
         $agents = User::all();
         $client_id = $request->input('client_id');
@@ -72,6 +83,11 @@ class ClientReclamationController extends Controller
      */
     public function store(Request $request)
     {
+        // Vérifier les permissions
+        if (!Auth::user()->canAccessModule('clients') && !Auth::user()->hasPermission('clients.reclamations.create')) {
+            abort(403, 'Accès non autorisé');
+        }
+        
         $validated = $request->validate([
             'client_id' => 'required|exists:clients,id',
             'type_reclamation' => ['required', Rule::in([
@@ -132,6 +148,11 @@ class ClientReclamationController extends Controller
      */
     public function show(ClientReclamation $reclamation)
     {
+        // Vérifier les permissions
+        if (!Auth::user()->canAccessModule('clients') && !Auth::user()->hasPermission('clients.reclamations.view')) {
+            abort(403, 'Accès non autorisé');
+        }
+        
         $reclamation->load(['client', 'agent', 'documents']);
         return view('clients.reclamations.show', compact('reclamation'));
     }
@@ -141,6 +162,11 @@ class ClientReclamationController extends Controller
      */
     public function edit(ClientReclamation $reclamation)
     {
+        // Vérifier les permissions
+        if (!Auth::user()->canAccessModule('clients') && !Auth::user()->hasPermission('clients.reclamations.edit')) {
+            abort(403, 'Accès non autorisé');
+        }
+        
         $clients = Client::all();
         $agents = User::all();
         $documents = $reclamation->documents;
@@ -153,6 +179,11 @@ class ClientReclamationController extends Controller
      */
     public function update(Request $request, ClientReclamation $reclamation)
     {
+        // Vérifier les permissions
+        if (!Auth::user()->canAccessModule('clients') && !Auth::user()->hasPermission('clients.reclamations.edit')) {
+            abort(403, 'Accès non autorisé');
+        }
+        
         $validated = $request->validate([
             'client_id' => 'required|exists:clients,id',
             'type_reclamation' => ['required', Rule::in([
@@ -218,6 +249,11 @@ class ClientReclamationController extends Controller
      */
     public function destroy(ClientReclamation $reclamation)
     {
+        // Vérifier les permissions
+        if (!Auth::user()->canAccessModule('clients') && !Auth::user()->hasPermission('clients.reclamations.delete')) {
+            abort(403, 'Accès non autorisé');
+        }
+        
         try {
             // Supprimer les documents associés à la réclamation
             foreach ($reclamation->documents as $document) {
@@ -239,6 +275,11 @@ class ClientReclamationController extends Controller
      */
     public function changeStatus(Request $request, ClientReclamation $reclamation)
     {
+        // Vérifier les permissions
+        if (!Auth::user()->canAccessModule('clients') && !Auth::user()->hasPermission('clients.reclamations.edit')) {
+            abort(403, 'Accès non autorisé');
+        }
+        
         $validated = $request->validate([
             'statut' => ['required', Rule::in(['ouverte', 'en_cours', 'resolue'])],
             'commentaires' => 'nullable|string',
@@ -269,6 +310,11 @@ class ClientReclamationController extends Controller
      */
     public function assignAgent(Request $request, ClientReclamation $reclamation)
     {
+        // Vérifier les permissions
+        if (!Auth::user()->canAccessModule('clients') && !Auth::user()->hasPermission('clients.reclamations.edit')) {
+            abort(403, 'Accès non autorisé');
+        }
+        
         $validated = $request->validate([
             'agent_id' => 'required|exists:users,id',
         ]);

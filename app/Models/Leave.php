@@ -44,8 +44,21 @@ class Leave extends Model
         return $this->belongsTo(User::class, 'approved_by');
     }
 
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function validator()
+    {
+        return $this->belongsTo(User::class, 'validated_by');
+    }
+
     public function getDurationAttribute()
     {
+        if (!$this->start_date || !$this->end_date) {
+            return 0;
+        }
         return $this->start_date->diffInDays($this->end_date) + 1;
     }
 

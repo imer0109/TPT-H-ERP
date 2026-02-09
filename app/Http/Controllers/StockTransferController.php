@@ -28,7 +28,7 @@ class StockTransferController extends Controller
     public function create()
     {
         $warehouses = Warehouse::pluck('nom', 'id');
-        $products = Product::pluck('nom', 'id');
+        $products = Product::pluck('name', 'id');
         return view('stock.transfers.create', compact('warehouses', 'products'));
     }
 
@@ -58,7 +58,7 @@ class StockTransferController extends Controller
         return view('stock.transfers.show', compact('transfer'));
     }
 
-    public function validate(StockTransfer $transfer)
+    public function validateTransfer(StockTransfer $transfer)
     {
         if ($transfer->statut !== 'en_attente') {
             return back()->with('error', 'Ce transfert ne peut plus être validé');

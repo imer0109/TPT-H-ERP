@@ -7,19 +7,26 @@ use App\Models\Company;
 use App\Models\Agency;
 use App\Models\User;
 use App\Models\Document;
+use App\Models\CashTransaction;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
+use App\Http\Controllers\Controller as BaseController;
 
-class ClientController extends Controller
+class ClientController extends BaseController
 {
     /**
      * Afficher la liste des clients
      */
     public function index(Request $request)
     {
+        // Vérifier les permissions
+        if (!Auth::user()->canAccessModule('clients') && !Auth::user()->hasPermission('clients.view') && !Auth::user()->hasRole('commercial')) {
+            abort(403, 'Accès non autorisé');
+        }
+
         $query = Client::with(['company', 'agency', 'referentCommercial'])
             ->orderBy('created_at', 'desc');
 
@@ -66,6 +73,11 @@ class ClientController extends Controller
      */
     public function create()
     {
+        // Vérifier les permissions
+        if (!Auth::user()->canAccessModule('clients') && !Auth::user()->hasPermission('clients.create') && !Auth::user()->hasRole('commercial')) {
+            abort(403, 'Accès non autorisé');
+        }
+
         $companies = Company::all();
         $agencies = Agency::all();
         $commerciaux = User::whereHas('roles', function ($query) {
@@ -83,16 +95,22 @@ class ClientController extends Controller
      */
     public function store(Request $request)
     {
+        // Vérifier les permissions
+        if (!Auth::user()->canAccessModule('clients') && !Auth::user()->hasPermission('clients.create') && !Auth::user()->hasRole('commercial')) {
+            abort(403, 'Accès non autorisé');
+        }
+
         $validated = $request->validate([
             'code_client' => 'required|unique:clients,code_client',
             'company_id' => 'required|exists:companies,id',
             'agency_id' => 'nullable|exists:agencies,id',
             'nom_raison_sociale' => 'required|string|max:255',
             'type_client' => ['required', Rule::in(['particulier', 'entreprise', 'administration', 'distributeur'])],
-            'telephone' => 'nullable|string|max:20',
+            'telephone' => 'required|string|max:20',
             'whatsapp' => 'nullable|string|max:20',
             'email' => 'nullable|email|max:255',
             'adresse' => 'nullable|string',
+            'ville' => 'nullable|string|max:100',
             'contact_principal' => 'nullable|string|max:255',
             'canal_acquisition' => 'nullable|string|max:255',
             'referent_commercial_id' => 'nullable|exists:users,id',
@@ -102,6 +120,8 @@ class ClientController extends Controller
             'mode_paiement_prefere' => 'nullable|string|max:255',
             'statut' => ['required', Rule::in(['actif', 'inactif', 'suspendu'])],
             'categorie' => ['required', Rule::in(['or', 'argent', 'bronze'])],
+            'site_web' => 'nullable|url|max:255',
+            'notes' => 'nullable|string',
             'documents' => 'nullable|array',
             'documents.*' => 'file|mimes:pdf,jpg,jpeg,png|max:10240',
             'types_documents' => 'nullable|array',
@@ -150,7 +170,14 @@ class ClientController extends Controller
      */
     public function show(Client $client)
     {
-        $client->load(['company', 'agency', 'referentCommercial', 'documents', 'reclamations', 'interactions']);
+        // Vérifier les permissions
+        if (!Auth::user()->canAccessModule('clients') && !Auth::user()->hasPermission('clients.view') && 
+            !Auth::user()->hasRole('commercial') && 
+            $client->referent_commercial_id != Auth::id()) {
+            abort(403, 'Accès non autorisé');
+        }
+
+        $client->load(['company', 'agency', 'referentCommercial', 'documents', 'reclamations', 'interactions', 'integrations']);
         
         // Calculer les statistiques financières
         $encours = $client->getEncours();
@@ -174,6 +201,13 @@ class ClientController extends Controller
      */
     public function edit(Client $client)
     {
+        // Vérifier les permissions
+        if (!Auth::user()->canAccessModule('clients') && !Auth::user()->hasPermission('clients.edit') && 
+            !Auth::user()->hasRole('commercial') && 
+            $client->referent_commercial_id != Auth::id()) {
+            abort(403, 'Accès non autorisé');
+        }
+
         $companies = Company::all();
         $agencies = Agency::all();
         $commerciaux = User::whereHas('roles', function ($query) {
@@ -189,16 +223,24 @@ class ClientController extends Controller
      */
     public function update(Request $request, Client $client)
     {
+        // Vérifier les permissions
+        if (!Auth::user()->canAccessModule('clients') && !Auth::user()->hasPermission('clients.edit') && 
+            !Auth::user()->hasRole('commercial') && 
+            $client->referent_commercial_id != Auth::id()) {
+            abort(403, 'Accès non autorisé');
+        }
+
         $validated = $request->validate([
             'code_client' => ['required', Rule::unique('clients')->ignore($client->id)],
             'company_id' => 'required|exists:companies,id',
             'agency_id' => 'nullable|exists:agencies,id',
             'nom_raison_sociale' => 'required|string|max:255',
             'type_client' => ['required', Rule::in(['particulier', 'entreprise', 'administration', 'distributeur'])],
-            'telephone' => 'nullable|string|max:20',
+            'telephone' => 'required|string|max:20',
             'whatsapp' => 'nullable|string|max:20',
             'email' => 'nullable|email|max:255',
             'adresse' => 'nullable|string',
+            'ville' => 'nullable|string|max:100',
             'contact_principal' => 'nullable|string|max:255',
             'canal_acquisition' => 'nullable|string|max:255',
             'referent_commercial_id' => 'nullable|exists:users,id',
@@ -208,6 +250,8 @@ class ClientController extends Controller
             'mode_paiement_prefere' => 'nullable|string|max:255',
             'statut' => ['required', Rule::in(['actif', 'inactif', 'suspendu'])],
             'categorie' => ['required', Rule::in(['or', 'argent', 'bronze'])],
+            'site_web' => 'nullable|url|max:255',
+            'notes' => 'nullable|string',
             'documents' => 'nullable|array',
             'documents.*' => 'file|mimes:pdf,jpg,jpeg,png|max:10240',
             'types_documents' => 'nullable|array',
@@ -256,6 +300,11 @@ class ClientController extends Controller
      */
     public function destroy(Client $client)
     {
+        // Vérifier les permissions
+        if (!Auth::user()->canAccessModule('clients') && !Auth::user()->hasPermission('clients.delete') && !Auth::user()->hasRole('commercial')) {
+            abort(403, 'Accès non autorisé');
+        }
+
         try {
             // Supprimer les documents associés au client
             foreach ($client->documents as $document) {
@@ -277,6 +326,11 @@ class ClientController extends Controller
      */
     public function dashboard()
     {
+        // Vérifier les permissions
+        if (!Auth::user()->canAccessModule('clients') && !Auth::user()->hasPermission('clients.dashboard') && !Auth::user()->hasRole('commercial')) {
+            abort(403, 'Accès non autorisé');
+        }
+
         // Statistiques globales
         $totalClients = Client::count();
         $clientsActifs = Client::where('statut', 'actif')->count();
@@ -310,6 +364,33 @@ class ClientController extends Controller
             ->orderBy('month')
             ->get();
 
+        // Clients à risque (sans transaction depuis 3 mois)
+        $threeMonthsAgo = now()->subMonths(3);
+        $clientsAtRisk = Client::whereHas('transactions')
+            ->whereDoesntHave('transactions', function ($query) use ($threeMonthsAgo) {
+                $query->where('created_at', '>=', $threeMonthsAgo->toDateTimeString());
+            })->count();
+
+        // Clients inactifs (sans transaction depuis 6 mois)
+        $sixMonthsAgo = now()->subMonths(6);
+        $inactiveClients = Client::whereHas('transactions')
+            ->whereDoesntHave('transactions', function ($query) use ($sixMonthsAgo) {
+                $query->where('created_at', '>=', $sixMonthsAgo->toDateTimeString());
+            })->count();
+
+        // Chiffre d'affaires total
+        $totalRevenue = Client::join('cash_transactions', 'clients.id', '=', 'cash_transactions.tiers_id')
+            ->where('cash_transactions.tiers_type', Client::class)
+            ->where('cash_transactions.type', 'encaissement')
+            ->sum('cash_transactions.montant');
+
+        // Répartition géographique des clients
+        $geographicDistribution = Client::select('ville', DB::raw('count(*) as total'))
+            ->whereNotNull('ville')
+            ->groupBy('ville')
+            ->orderBy('total', 'desc')
+            ->get();
+
         return view('clients.dashboard', compact(
             'totalClients',
             'clientsActifs',
@@ -318,7 +399,11 @@ class ClientController extends Controller
             'topClients',
             'repartitionTypes',
             'repartitionCategories',
-            'evolutionClients'
+            'evolutionClients',
+            'clientsAtRisk',
+            'inactiveClients',
+            'totalRevenue',
+            'geographicDistribution'
         ));
     }
 
@@ -327,6 +412,11 @@ class ClientController extends Controller
      */
     public function downloadDocument(Document $document)
     {
+        // Vérifier les permissions
+        if (!Auth::user()->canAccessModule('clients') && !Auth::user()->hasPermission('clients.documents') && !Auth::user()->hasRole('commercial')) {
+            abort(403, 'Accès non autorisé');
+        }
+
         // Vérifier si l'utilisateur a le droit d'accéder à ce document
         if ($document->documentable_type === Client::class) {
             $client = Client::find($document->documentable_id);
@@ -334,7 +424,7 @@ class ClientController extends Controller
             // Vérifier si l'utilisateur a accès à ce client (selon les règles d'accès)
             // Logique d'autorisation à implémenter selon les besoins
             
-            return Storage::disk('public')->download($document->chemin_fichier, $document->nom);
+            return Storage::download($document->chemin_fichier, $document->nom);
         }
         
         abort(403, 'Accès non autorisé');
@@ -345,6 +435,11 @@ class ClientController extends Controller
      */
     public function deleteDocument(Document $document)
     {
+        // Vérifier les permissions
+        if (!Auth::user()->canAccessModule('clients') && !Auth::user()->hasPermission('clients.documents') && !Auth::user()->hasRole('commercial')) {
+            abort(403, 'Accès non autorisé');
+        }
+
         // Vérifier si l'utilisateur a le droit de supprimer ce document
         if ($document->documentable_type === Client::class) {
             $client = Client::find($document->documentable_id);
@@ -366,9 +461,431 @@ class ClientController extends Controller
      */
     public function export(Request $request)
     {
+        // Vérifier les permissions
+        if (!Auth::user()->canAccessModule('clients') && !Auth::user()->hasPermission('clients.export') && !Auth::user()->hasRole('commercial')) {
+            abort(403, 'Accès non autorisé');
+        }
+
         // Logique d'export à implémenter selon les besoins
         // Utiliser une bibliothèque comme Laravel Excel ou DomPDF
         
         return back()->with('info', 'Fonctionnalité d\'export en cours de développement.');
+    }
+
+    /**
+     * Afficher les transactions d'un client
+     */
+    public function transactions(Client $client, Request $request)
+    {
+        // Vérifier les permissions
+        if (!Auth::user()->canAccessModule('clients') && !Auth::user()->hasPermission('clients.transactions') && 
+            !Auth::user()->hasRole('commercial') && 
+            $client->referent_commercial_id != Auth::id()) {
+            abort(403, 'Accès non autorisé');
+        }
+
+        $query = $client->transactions()->with('cashRegister', 'user')->orderBy('created_at', 'desc');
+        
+        // Filtres
+        if ($request->has('type') && $request->input('type') != '') {
+            $query->where('type', $request->input('type'));
+        }
+        
+        if ($request->has('date_debut') && $request->input('date_debut') != '') {
+            $query->whereDate('created_at', '>=', $request->input('date_debut'));
+        }
+        
+        if ($request->has('date_fin') && $request->input('date_fin') != '') {
+            $query->whereDate('created_at', '<=', $request->input('date_fin'));
+        }
+        
+        $transactions = $query->paginate(15);
+        
+        // Calcul des totaux
+        $totalEncaissements = $client->transactions()->where('type', 'encaissement')->sum('montant');
+        $totalDecaissements = $client->transactions()->where('type', 'decaissement')->sum('montant');
+        $solde = $totalEncaissements - $totalDecaissements;
+        
+        return view('clients.transactions', compact('client', 'transactions', 'totalEncaissements', 'totalDecaissements', 'solde'));
+    }
+
+    /**
+     * Exporter les transactions d'un client au format Excel ou PDF
+     */
+    public function exportTransactions(Client $client, Request $request)
+    {
+        // Vérifier les permissions
+        if (!Auth::user()->canAccessModule('clients') && !Auth::user()->hasPermission('clients.transactions.export') && 
+            !Auth::user()->hasRole('commercial') && 
+            $client->referent_commercial_id != Auth::id()) {
+            abort(403, 'Accès non autorisé');
+        }
+
+        $query = $client->transactions()->with('cashRegister', 'user')->orderBy('created_at', 'desc');
+        
+        // Filtres
+        if ($request->has('type') && $request->input('type') != '') {
+            $query->where('type', $request->input('type'));
+        }
+        
+        if ($request->has('date_debut') && $request->input('date_debut') != '') {
+            $query->whereDate('created_at', '>=', $request->input('date_debut'));
+        }
+        
+        if ($request->has('date_fin') && $request->input('date_fin') != '') {
+            $query->whereDate('created_at', '<=', $request->input('date_fin'));
+        }
+        
+        $transactions = $query->get();
+        
+        // Format pour export
+        $data = [];
+        $data[] = ['Date', 'Type', 'Numéro', 'Libellé', 'Montant', 'Caisse', 'Utilisateur'];
+        
+        foreach ($transactions as $transaction) {
+            $data[] = [
+                $transaction->created_at->format('d/m/Y H:i'),
+                ucfirst($transaction->type),
+                $transaction->numero_transaction,
+                $transaction->libelle,
+                ($transaction->type == 'encaissement' ? '+' : '-') . number_format($transaction->montant, 0, ',', ' '),
+                $transaction->cashRegister->nom ?? 'N/A',
+                ($transaction->user->nom ?? 'N/A') . ' ' . ($transaction->user->prenom ?? '')
+            ];
+        }
+        
+        // Générer un fichier CSV
+        $filename = 'transactions_client_' . $client->code_client . '_' . now()->format('Y-m-d') . '.csv';
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => "attachment; filename=\"$filename\"",
+        ];
+        
+        $callback = function() use ($data) {
+            $file = fopen('php://output', 'w');
+            foreach ($data as $row) {
+                fputcsv($file, $row);
+            }
+            fclose($file);
+        };
+        
+        return response()->stream($callback, 200, $headers);
+    }
+
+    /**
+     * Afficher les segments de clients
+     */
+    public function segments(Request $request)
+    {
+        // Vérifier les permissions
+        if (!Auth::user()->canAccessModule('clients') && !Auth::user()->hasPermission('clients.segments') && !Auth::user()->hasRole('commercial')) {
+            abort(403, 'Accès non autorisé');
+        }
+
+        $query = Client::with(['company', 'agency']);
+        
+        // Filtres
+        if ($request->has('segment') && $request->input('segment') != '') {
+            $segment = $request->input('segment');
+            
+            switch ($segment) {
+                case 'loyal':
+                    // Clients avec transactions régulières (au moins 3 transactions dans les 6 derniers mois)
+                    $sixMonthsAgo = now()->subMonths(6);
+                    $query->whereHas('transactions', function ($q) use ($sixMonthsAgo) {
+                        $q->where('created_at', '>=', $sixMonthsAgo);
+                    }, '>=', 3);
+                    break;
+                    
+                case 'inactive':
+                    // Clients sans transaction depuis 6 mois
+                    $sixMonthsAgo = now()->subMonths(6);
+                    $query->whereDoesntHave('transactions', function ($q) use ($sixMonthsAgo) {
+                        $q->where('created_at', '>=', $sixMonthsAgo);
+                    });
+                    break;
+                    
+                case 'high_value':
+                    // Clients avec un CA élevé (top 20%)
+                    $topClients = Client::withCount(['transactions as transaction_count'])
+                        ->orderBy('transaction_count', 'desc')
+                        ->take(ceil(Client::count() * 0.2))
+                        ->pluck('id');
+                    $query->whereIn('id', $topClients);
+                    break;
+                    
+                case 'at_risk':
+                    // Clients avec des retards répétés ou des litiges
+                    // Pour l'instant, on simule avec des clients inactifs
+                    $sixMonthsAgo = now()->subMonths(6);
+                    $query->whereDoesntHave('transactions', function ($q) use ($sixMonthsAgo) {
+                        $q->where('created_at', '>=', $sixMonthsAgo);
+                    });
+                    break;
+                    
+                case 'new':
+                    // Clients créés dans les 30 derniers jours
+                    $thirtyDaysAgo = now()->subDays(30);
+                    $query->where('created_at', '>=', $thirtyDaysAgo);
+                    break;
+                    
+                case 'vip':
+                    // Clients VIP (catégorie or)
+                    $query->where('categorie', 'or');
+                    break;
+                    
+                case 'credit':
+                    // Clients à crédit
+                    $query->where('type_relation', 'credit');
+                    break;
+                    
+                case 'cash':
+                    // Clients comptant
+                    $query->where('type_relation', 'comptant');
+                    break;
+            }
+        }
+        
+        $clients = $query->paginate(15);
+        $segmentTypes = [
+            'loyal' => 'Clients fidèles', 
+            'inactive' => 'Clients inactifs', 
+            'high_value' => 'Clients à forte valeur', 
+            'at_risk' => 'Clients à risque',
+            'new' => 'Nouveaux clients',
+            'vip' => 'Clients VIP',
+            'credit' => 'Clients à crédit',
+            'cash' => 'Clients comptant'
+        ];
+        
+        return view('clients.segments', compact('clients', 'segmentTypes'));
+    }
+
+    /**
+     * Exporter un segment de clients
+     */
+    public function exportSegment(Request $request)
+    {
+        // Vérifier les permissions
+        if (!Auth::user()->canAccessModule('clients') && !Auth::user()->hasPermission('clients.segments.export') && !Auth::user()->hasRole('commercial')) {
+            abort(403, 'Accès non autorisé');
+        }
+
+        $query = Client::with(['company', 'agency']);
+        
+        // Filtres
+        if ($request->has('segment') && $request->input('segment') != '') {
+            $segment = $request->input('segment');
+            
+            switch ($segment) {
+                case 'loyal':
+                    // Clients avec transactions régulières (au moins 3 transactions dans les 6 derniers mois)
+                    $sixMonthsAgo = now()->subMonths(6);
+                    $query->whereHas('transactions', function ($q) use ($sixMonthsAgo) {
+                        $q->where('created_at', '>=', $sixMonthsAgo);
+                    }, '>=', 3);
+                    break;
+                    
+                case 'inactive':
+                    // Clients sans transaction depuis 6 mois
+                    $sixMonthsAgo = now()->subMonths(6);
+                    $query->whereDoesntHave('transactions', function ($q) use ($sixMonthsAgo) {
+                        $q->where('created_at', '>=', $sixMonthsAgo);
+                    });
+                    break;
+                    
+                case 'high_value':
+                    // Clients avec un CA élevé (top 20%)
+                    $topClients = Client::withCount(['transactions as transaction_count'])
+                        ->orderBy('transaction_count', 'desc')
+                        ->take(ceil(Client::count() * 0.2))
+                        ->pluck('id');
+                    $query->whereIn('id', $topClients);
+                    break;
+                    
+                case 'at_risk':
+                    // Clients avec des retards répétés ou des litiges
+                    // Pour l'instant, on simule avec des clients inactifs
+                    $sixMonthsAgo = now()->subMonths(6);
+                    $query->whereDoesntHave('transactions', function ($q) use ($sixMonthsAgo) {
+                        $q->where('created_at', '>=', $sixMonthsAgo);
+                    });
+                    break;
+                    
+                case 'new':
+                    // Clients créés dans les 30 derniers jours
+                    $thirtyDaysAgo = now()->subDays(30);
+                    $query->where('created_at', '>=', $thirtyDaysAgo);
+                    break;
+                    
+                case 'vip':
+                    // Clients VIP (catégorie or)
+                    $query->where('categorie', 'or');
+                    break;
+                    
+                case 'credit':
+                    // Clients à crédit
+                    $query->where('type_relation', 'credit');
+                    break;
+                    
+                case 'cash':
+                    // Clients comptant
+                    $query->where('type_relation', 'comptant');
+                    break;
+            }
+        }
+        
+        $clients = $query->get();
+        
+        // Format pour export
+        $data = [];
+        $data[] = ['Code Client', 'Nom/Raison Sociale', 'Type', 'Email', 'Téléphone', 'Société', 'Agence', 'Statut'];
+        
+        foreach ($clients as $client) {
+            $data[] = [
+                $client->code_client,
+                $client->nom_raison_sociale,
+                ucfirst($client->type_client),
+                $client->email,
+                $client->telephone,
+                $client->company->raison_sociale ?? 'N/A',
+                $client->agency->nom ?? 'N/A',
+                ucfirst($client->statut)
+            ];
+        }
+        
+        // Générer un fichier CSV
+        $filename = 'segment_clients_' . $request->input('segment') . '_' . now()->format('Y-m-d') . '.csv';
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => "attachment; filename=\"$filename\"",
+        ];
+        
+        $callback = function() use ($data) {
+            $file = fopen('php://output', 'w');
+            foreach ($data as $row) {
+                fputcsv($file, $row);
+            }
+            fclose($file);
+        };
+        
+        return response()->stream($callback, 200, $headers);
+    }
+
+    /**
+     * Afficher le scoring d'un client
+     */
+    public function score(Client $client)
+    {
+        // Vérifier les permissions
+        if (!Auth::user()->canAccessModule('clients') && !Auth::user()->hasPermission('clients.score') && 
+            !Auth::user()->hasRole('commercial') && 
+            $client->referent_commercial_id != Auth::id()) {
+            abort(403, 'Accès non autorisé');
+        }
+
+        // Calcul du score de risque (0-100, plus le score est bas, moins le risque est élevé)
+        $riskScore = 100;
+        
+        // Réduction du score selon les facteurs de risque
+        // 1. Clients inactifs (-20 points)
+        $sixMonthsAgo = now()->subMonths(6);
+        if (!$client->transactions()->where('created_at', '>=', $sixMonthsAgo)->exists()) {
+            $riskScore -= 20;
+        }
+        
+        // 2. Clients avec des réclamations (-10 points par réclamation)
+        $riskScore -= min($client->reclamations()->count() * 10, 30);
+        
+        // 3. Clients avec des retards de paiement (-5 points par mois de retard)
+        $riskScore -= min($client->delai_paiement ?? 0, 20);
+        
+        // 4. Clients avec un plafond de crédit dépassé (-15 points)
+        $currentBalance = $client->transactions()->where('type', 'encaissement')->sum('montant') 
+                        - $client->transactions()->where('type', 'decaissement')->sum('montant');
+        if ($client->plafond_credit && $currentBalance > $client->plafond_credit) {
+            $riskScore -= 15;
+        }
+        
+        // Assurer que le score est entre 0 et 100
+        $riskScore = max(0, min(100, $riskScore));
+        
+        // Calcul du score de solvabilité (0-100, plus le score est élevé, meilleure est la solvabilité)
+        $solvencyScore = 50; // Score de base
+        
+        // Augmentation du score selon les facteurs positifs
+        // 1. Clients actifs (+10 points)
+        if ($client->statut == 'actif') {
+            $solvencyScore += 10;
+        }
+        
+        // 2. Clients avec un historique de transactions (+20 points)
+        if ($client->transactions()->count() > 0) {
+            $solvencyScore += 20;
+        }
+        
+        // 3. Clients avec un CA élevé (+10 points pour chaque tranche de 100000 FCFA)
+        $totalRevenue = $client->transactions()->where('type', 'encaissement')->sum('montant');
+        $solvencyScore += min(floor($totalRevenue / 100000) * 10, 30);
+        
+        // 4. Clients fidèles (+10 points)
+        if ($client->transactions()->where('created_at', '>=', now()->subMonths(12))->count() >= 5) {
+            $solvencyScore += 10;
+        }
+        
+        // Assurer que le score est entre 0 et 100
+        $solvencyScore = max(0, min(100, $solvencyScore));
+        
+        // Calcul du score de satisfaction (0-100)
+        $satisfactionScore = 70; // Score de base
+        
+        // Ajustement selon les réclamations
+        $reclamationCount = $client->reclamations()->count();
+        if ($reclamationCount > 0) {
+            $satisfactionScore -= min($reclamationCount * 5, 40);
+        } else {
+            // Clients sans réclamation (+10 points)
+            $satisfactionScore += 10;
+        }
+        
+        // Ajustement selon le statut des réclamations
+        $unresolvedClaims = $client->reclamations()->where('statut', '!=', 'resolue')->count();
+        $satisfactionScore -= $unresolvedClaims * 8;
+        
+        // Assurer que le score est entre 0 et 100
+        $satisfactionScore = max(0, min(100, $satisfactionScore));
+        
+        return view('clients.score', compact('client', 'riskScore', 'solvencyScore', 'satisfactionScore'));
+    }
+    
+    /**
+     * Display the customer portal
+     */
+    public function portal(Client $client)
+    {
+        // Vérifier les permissions
+        if (!Auth::user()->canAccessModule('clients') && !Auth::user()->hasPermission('clients.portal') && 
+            !Auth::user()->hasRole('commercial') && 
+            $client->referent_commercial_id != Auth::id()) {
+            abort(403, 'Accès non autorisé');
+        }
+
+        $client->load(['company', 'agency', 'referentCommercial', 'documents', 'reclamations', 'interactions', 'loyaltyCard']);
+        
+        // Calculer les statistiques financières
+        $encours = $client->getEncours();
+        $delaiMoyenReglement = $client->getDelaiMoyenReglement();
+        $nombreFacturesImpayees = $client->getNombreFacturesImpayees();
+        
+        // Récupérer les transactions récentes
+        $transactions = $client->transactions()->latest()->take(10)->get();
+        
+        return view('clients.portal', compact(
+            'client', 
+            'encours', 
+            'delaiMoyenReglement', 
+            'nombreFacturesImpayees', 
+            'transactions'
+        ));
     }
 }

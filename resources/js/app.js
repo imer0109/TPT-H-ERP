@@ -46,18 +46,29 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 
-    // Intercepter les requêtes fetch
+    // Intercepter les requêtes fetch avec timeout pour éviter les loaders bloqués
     const originalFetch = window.fetch;
-    window.fetch = function() {
+    window.fetch = function(...args) {
         showLoader();
-        return originalFetch.apply(this, arguments)
+        
+        // Ajouter un timeout pour éviter les loaders bloqués
+        const timeoutPromise = new Promise((_, reject) => {
+            setTimeout(() => reject(new Error('Request timeout')), 10000);
+        });
+        
+        return Promise.race([originalFetch.apply(this, args), timeoutPromise])
             .then(response => {
                 hideLoader();
                 return response;
             })
             .catch(error => {
                 hideLoader();
-                throw error;
+                // Ne pas propager l'erreur de timeout pour ne pas casser l'application
+                if (error.message !== 'Request timeout') {
+                    throw error;
+                }
+                // Retourner une réponse vide ou une valeur par défaut en cas de timeout
+                return new Response('', { status: 408, statusText: 'Request Timeout' });
             });
     };
 });

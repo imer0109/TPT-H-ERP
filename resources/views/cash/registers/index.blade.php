@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('content')
 <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -23,14 +23,14 @@
 
     <div class="bg-white shadow overflow-hidden sm:rounded-lg">
         <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
+            <thead class="bg-primary-50">
                 <tr>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nom</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Entité</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Solde actuel</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-primary-700 uppercase tracking-wider">Nom</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-primary-700 uppercase tracking-wider">Type</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-primary-700 uppercase tracking-wider">Entité</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-primary-700 uppercase tracking-wider">Solde actuel</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-primary-700 uppercase tracking-wider">Statut</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-primary-700 uppercase tracking-wider">Actions</th>
                 </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
@@ -38,16 +38,18 @@
                 <tr>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $cashRegister->nom }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $cashRegister->type === 'principale' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800' }}">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $cashRegister->type === 'principale' ? 'bg-primary-100 text-primary-800' : 'bg-gray-100 text-gray-800' }}">
                             {{ $cashRegister->type === 'principale' ? 'Principale' : 'Secondaire' }}
                         </span>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         @if($cashRegister->entity)
-                            @if(class_basename($cashRegister->entity_type) === 'Company')
+                            @if($cashRegister->entity instanceof \App\Models\Company)
                                 Société : {{ $cashRegister->entity->raison_sociale }}
-                            @elseif(class_basename($cashRegister->entity_type) === 'Agency')
+                            @elseif($cashRegister->entity instanceof \App\Models\Agency)
                                 Agence : {{ $cashRegister->entity->nom }}
+                            @else
+                                {{ class_basename($cashRegister->entity_type) }} : {{ $cashRegister->entity->nom ?? $cashRegister->entity->raison_sociale ?? 'N/A' }}
                             @endif
                         @else
                             Non assignée
@@ -60,7 +62,7 @@
                         </span>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <a href="{{ route('cash.registers.show', ['cashRegister' => $cashRegister->id]) }}" class="text-blue-600 hover:text-blue-900 mr-3">Détails</a>
+                        <a href="{{ route('cash.registers.show', ['cashRegister' => $cashRegister->id]) }}" class="text-primary-600 hover:text-primary-900 mr-3">Détails</a>
                         <a href="{{ route('cash.registers.edit', ['cashRegister' => $cashRegister->id]) }}" class="text-indigo-600 hover:text-indigo-900 mr-3">Modifier</a>
                         <form action="{{ route('cash.registers.destroy', ['cashRegister' => $cashRegister->id]) }}" method="POST" class="inline">
                             @csrf

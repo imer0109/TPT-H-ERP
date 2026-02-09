@@ -16,7 +16,7 @@ class StockAlert extends Model
         'seuil_minimum',
         'seuil_securite',
         'alerte_active',
-        'email_notifications',
+        'email_notification', // Changed from email_notifications to match the DB column
         'created_by'
     ];
 
@@ -25,6 +25,12 @@ class StockAlert extends Model
         'seuil_minimum' => 'decimal:2',
         'seuil_securite' => 'decimal:2'
     ];
+
+    // Ensure the correct primary key is used for route model binding
+    public function getRouteKeyName()
+    {
+        return 'id';
+    }
 
     public function product()
     {

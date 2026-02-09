@@ -14,7 +14,9 @@ class CashRegister extends Model
         'nom',
         'type',
         'solde_actuel',
-        'est_ouverte'
+        'est_ouverte',
+        'entity_type',
+        'entity_id'
     ];
 
     protected $casts = [

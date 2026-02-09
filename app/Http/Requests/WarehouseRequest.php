@@ -27,10 +27,13 @@ class WarehouseRequest extends FormRequest
             'code' => 'required|string|max:50|unique:warehouses,code,' . ($this->warehouse ? $this->warehouse->id : ''),
             'nom' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'type' => 'required|string|max:50',
+            'type' => 'required|in:principal,secondaire,production,logistique',
             'adresse' => 'nullable|string|max:255',
-            'est_actif' => 'boolean',
-            'entity_id' => 'nullable|exists:entities,id'
+            'actif' => 'boolean',
+
+            // Polymorphic fields
+            'entity_type' => 'required|string|in:App\Models\Company,App\Models\Agency',
+            'entity_id' => 'required|integer',
         ];
     }
 
@@ -46,6 +49,8 @@ class WarehouseRequest extends FormRequest
             'code.unique' => 'Ce code de dépôt existe déjà',
             'nom.required' => 'Le nom du dépôt est obligatoire',
             'type.required' => 'Le type de dépôt est obligatoire',
+            'entity_type.required' => 'Le type d’entité est obligatoire',
+            'entity_id.required' => 'L’entité est obligatoire',
         ];
     }
 }

@@ -2,19 +2,138 @@
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 
-/* Custom styles */
-.active {
-    @apply bg-red-50 text-red-600;
-}
+/* Importer le CSS spécifique à la page de login */
+@import 'login';
 
-/* Custom color variables */
+/* Design System Variables */
 :root {
-    --color-primary: #C20000;
+    --color-primary: theme('colors.primary.600');
+    --color-primary-dark: theme('colors.primary.700');
+    --color-primary-light: theme('colors.primary.100');
     --color-background: #FFFFFF;
-    --color-surface: #F5F5F5;
+    --color-surface: #F9FAFB;
+    --color-text-primary: #111827;
+    --color-text-secondary: #6B7280;
+    --color-border: #E5E7EB;
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    --radius-sm: 0.5rem;
+    --radius-md: 0.75rem;
+    --radius-lg: 1rem;
+    --radius-xl: 1.25rem;
+    --radius-2xl: 1.5rem;
 }
 
-/* Loader styles */
+/* Base Styles */
+* {
+    @apply antialiased;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    @apply bg-gray-50 text-gray-900;
+}
+
+/* Custom Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-gray-300 rounded-full;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-400;
+}
+
+/* Smooth Transitions */
+.transition-smooth {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Active State */
+.active {
+    @apply bg-primary-50 text-primary-700 font-medium;
+}
+
+/* Form Elements */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="date"],
+input[type="search"],
+select,
+textarea {
+    @apply transition-smooth;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    @apply ring-2 ring-primary-500 border-primary-500 outline-none;
+}
+
+/* Buttons */
+.btn {
+    @apply px-4 py-2 rounded-xl font-medium transition-smooth;
+}
+
+.btn-primary {
+    @apply bg-primary-600 text-white hover:bg-primary-700 shadow-sm hover:shadow-md;
+}
+
+.btn-secondary {
+    @apply bg-gray-100 text-gray-700 hover:bg-gray-200;
+}
+
+.btn-outline {
+    @apply border-2 border-gray-300 text-gray-700 hover:bg-gray-50;
+}
+
+/* Cards */
+.card {
+    @apply bg-white rounded-2xl border border-gray-200 shadow-sm;
+}
+
+.card-hover {
+    @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+}
+
+/* Badges */
+.badge {
+    @apply inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold;
+}
+
+.badge-primary {
+    @apply bg-primary-100 text-primary-700 border border-primary-200;
+}
+
+.badge-success {
+    @apply bg-emerald-100 text-emerald-700 border border-emerald-200;
+}
+
+.badge-warning {
+    @apply bg-yellow-100 text-yellow-700 border border-yellow-200;
+}
+
+.badge-danger {
+    @apply bg-red-100 text-red-700 border border-red-200;
+}
+
+.badge-info {
+    @apply bg-blue-100 text-blue-700 border border-blue-200;
+}
+
+/* Loader Styles */
 .loader-overlay {
     @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50;
 }
@@ -24,7 +143,7 @@
 }
 
 .loader-circle {
-    @apply absolute w-16 h-16 border-4 border-red-200 rounded-full;
+    @apply absolute w-16 h-16 border-4 border-primary-200 rounded-full;
     border-top-color: var(--color-primary);
     animation: spin 1s linear infinite;
 }
@@ -34,38 +153,118 @@
     100% { transform: rotate(360deg); }
 }
 
-/* Styles pour les loaders */
-.loader {
-    border-top-color: #3498db;
-    -webkit-animation: spinner 1.5s linear infinite;
-    animation: spinner 1.5s linear infinite;
-}
-
-@-webkit-keyframes spinner {
-    0% { -webkit-transform: rotate(0deg); }
-    100% { -webkit-transform: rotate(360deg); }
-}
-
-@keyframes spinner {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-/* Style pour le loader global */
+/* Global Loader */
 #global-loader {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(255, 255, 255, 0.8);
+    background-color: rgba(255, 255, 255, 0.95);
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 9999;
+    backdrop-filter: blur(4px);
 }
 
-/* Form loading state */
+/* Form Loading State */
 .form-loading {
     @apply opacity-50 pointer-events-none;
+}
+
+/* Table Styles */
+.table {
+    @apply w-full divide-y divide-gray-200;
+}
+
+.table thead {
+    @apply bg-gray-50;
+}
+
+.table th {
+    @apply px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider;
+}
+
+.table td {
+    @apply px-6 py-4 whitespace-nowrap text-sm text-gray-900;
+}
+
+.table tbody tr {
+    @apply hover:bg-gray-50 transition-colors;
+}
+
+/* Alert Styles */
+.alert {
+    @apply rounded-xl p-4 border;
+}
+
+.alert-success {
+    @apply bg-green-50 border-green-200 text-green-800;
+}
+
+.alert-error {
+    @apply bg-red-50 border-red-200 text-red-800;
+}
+
+.alert-warning {
+    @apply bg-yellow-50 border-yellow-200 text-yellow-800;
+}
+
+.alert-info {
+    @apply bg-blue-50 border-blue-200 text-blue-800;
+}
+
+/* Responsive Utilities */
+@media (min-width: 768px) {
+    body {
+        @apply bg-gray-50;
+    }
+    
+    main, [role="main"], .main-content {
+        @apply block opacity-100 visible;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+}
+
+/* Dark Mode Support (for future use) */
+@media (prefers-color-scheme: dark) {
+    /* Can be implemented later if needed */
+}
+
+/* Animation Utilities */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* Focus Visible */
+*:focus-visible {
+    @apply outline-none ring-2 ring-primary-500 ring-offset-2;
+}
+
+/* Selection */
+::selection {
+    @apply bg-primary-100 text-primary-900;
+}
+
+/* Alpine.js Cloak */
+[x-cloak] {
+    display: none !important;
 }

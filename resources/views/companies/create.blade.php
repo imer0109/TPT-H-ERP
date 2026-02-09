@@ -181,7 +181,7 @@
                     <select name="parent_id" id="parent_id"
                             class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm">
                         <option value="">Aucune</option>
-                        @foreach($companies as $company)
+                        @foreach($holdings as $company)
                             <option value="{{ $company->id }}" {{ old('parent_id') == $company->id ? 'selected' : '' }}>
                                 {{ $company->raison_sociale }}
                             </option>
@@ -198,6 +198,19 @@
                            class="mt-1 focus:ring-red-500 focus:border-red-500 block py-2 border w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
                     <img id="logo-preview" class="mt-3 w-24 h-24 object-contain border" />
                     @error('logo')
+                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                {{-- Visuel --}}
+                <div>
+                    <label for="visuel" class="block text-sm font-medium text-gray-700">Visuel</label>
+                    <input type="file" name="visuel" id="visuel"
+                           accept="image/*"
+                           onchange="document.getElementById('visuel-preview').src = window.URL.createObjectURL(this.files[0])"
+                           class="mt-1 focus:ring-red-500 focus:border-red-500 block py-2 border w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                    <img id="visuel-preview" class="mt-3 w-24 h-24 object-contain border" />
+                    @error('visuel')
                         <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                     @enderror
                 </div>

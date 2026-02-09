@@ -25,7 +25,8 @@ class Fournisseur extends Model
     protected $fillable = [
         'code_fournisseur',
         'societe_id',
-        'raison_sociale',
+        'agency_id',
+        'nom',
         'type',
         'activite',
         'statut',
@@ -41,12 +42,18 @@ class Fournisseur extends Model
         'site_web',
         'contact_principal',
         'banque',
+        'iban',
         'numero_compte',
         'devise',
         'condition_reglement',
         'delai_paiement',
         'plafond_credit',
         'date_debut_relation',
+        'date_fin_relation',
+        'note_moyenne',
+        'nombre_evaluations',
+        'derniere_activite',
+        'est_actif',
     ];
 
     /**
@@ -56,6 +63,8 @@ class Fournisseur extends Model
      */
     protected $dates = [
         'date_debut_relation',
+        'date_fin_relation',
+        'derniere_activite',
         'created_at',
         'updated_at',
         'deleted_at',
@@ -69,6 +78,9 @@ class Fournisseur extends Model
     protected $casts = [
         'plafond_credit' => 'float',
         'delai_paiement' => 'integer',
+        'note_moyenne' => 'decimal:2',
+        'nombre_evaluations' => 'integer',
+        'est_actif' => 'boolean',
     ];
 
     /**
@@ -123,7 +135,15 @@ class Fournisseur extends Model
      */
     public function societe()
     {
-        return $this->belongsTo(Societe::class, 'societe_id');
+        return $this->belongsTo(Company::class, 'societe_id');
+    }
+
+    /**
+     * Relation avec l'agence.
+     */
+    public function agency()
+    {
+        return $this->belongsTo(Agency::class, 'agency_id');
     }
 
     /**
@@ -135,35 +155,158 @@ class Fournisseur extends Model
     }
 
     /**
-     * Relation avec les commandes.
+     * Relation avec les commandes fournisseurs.
      */
-    public function commandes()
+    public function supplierOrders()
     {
-        return $this->hasMany(Commande::class, 'fournisseur_id');
+        return $this->hasMany(SupplierOrder::class, 'fournisseur_id');
     }
 
     /**
      * Relation avec les livraisons.
      */
-    public function livraisons()
+    public function supplierDeliveries()
     {
-        return $this->hasMany(Livraison::class, 'fournisseur_id');
+        return $this->hasMany(SupplierDelivery::class, 'fournisseur_id');
     }
 
     /**
      * Relation avec les paiements.
      */
-    public function paiements()
+    public function supplierPayments()
     {
-        return $this->hasMany(Paiement::class, 'fournisseur_id');
+        return $this->hasMany(SupplierPayment::class, 'fournisseur_id');
+    }
+
+    /**
+     * Relation avec les factures.
+     */
+    public function supplierInvoices()
+    {
+        return $this->hasMany(SupplierInvoice::class, 'fournisseur_id');
     }
 
     /**
      * Relation avec les réclamations.
      */
-    public function reclamations()
+    public function supplierIssues()
     {
-        return $this->hasMany(ReclamationFournisseur::class, 'fournisseur_id');
+        return $this->hasMany(SupplierIssue::class, 'fournisseur_id');
+    }
+
+    /**
+     * Relation avec les évaluations.
+     */
+    public function supplierRatings()
+    {
+        return $this->hasMany(SupplierRating::class, 'fournisseur_id');
+    }
+
+    /**
+     * Relation avec les contrats.
+     */
+    public function supplierContracts()
+    {
+        return $this->hasMany(SupplierContract::class, 'fournisseur_id');
+    }
+
+    /**
+     * Relation avec les intégrations.
+     */
+    public function supplierIntegrations()
+    {
+        return $this->hasMany(SupplierIntegration::class, 'fournisseur_id');
+    }
+
+    /**
+     * Obtenir la note moyenne du fournisseur.
+     */
+    public function getAverageRatingAttribute()
+    {
+        return $this->supplierRatings()->avg('overall_score');
+    }
+
+    /**
+     * Obtenir le nombre d'évaluations.
+     */
+    public function getRatingCountAttribute()
+    {
+        return $this->supplierRatings()->count();
+    }
+
+    /**
+     * Obtenir les contrats actifs.
+     */
+    public function activeContracts()
+    {
+        return $this->supplierContracts()->where('status', 'active');
+    }
+
+    /**
+     * Obtenir les contrats expirant bientôt.
+     */
+    public function expiringContracts()
+    {
+        return $this->supplierContracts()
+            ->where('status', 'active')
+            ->where('end_date', '<=', now()->addDays(30))
+            ->where('end_date', '>=', now());
+    }
+
+    /**
+     * Obtenir le montant total des commandes.
+     */
+    public function getTotalOrdersAmountAttribute()
+    {
+        return $this->supplierOrders()->sum('montant_ttc');
+    }
+
+    /**
+     * Obtenir le montant total des paiements.
+     */
+    public function getTotalPaymentsAmountAttribute()
+    {
+        return $this->supplierPayments()->sum('montant');
+    }
+
+    /**
+     * Obtenir le solde du fournisseur.
+     */
+    public function getBalanceAttribute()
+    {
+        return $this->total_orders_amount - $this->total_payments_amount;
+    }
+
+    /**
+     * Obtenir le nombre de commandes.
+     */
+    public function getOrdersCountAttribute()
+    {
+        return $this->supplierOrders()->count();
+    }
+
+    /**
+     * Obtenir le nombre de livraisons.
+     */
+    public function getDeliveriesCountAttribute()
+    {
+        return $this->supplierDeliveries()->count();
+    }
+
+    /**
+     * Obtenir le nombre de réclamations.
+     */
+    public function getIssuesCountAttribute()
+    {
+        return $this->supplierIssues()->count();
+    }
+
+    /**
+     * Obtenir le nombre de contrats.
+     */
+    public function getContractsCountAttribute()
+    {
+        return $this->supplierContracts()->count();
     }
 
     /**
@@ -199,12 +342,97 @@ class Fournisseur extends Model
             return $query->where(function ($q) use ($terme) {
                 $q->where('raison_sociale', 'like', "%{$terme}%")
                   ->orWhere('code_fournisseur', 'like', "%{$terme}%")
-                  ->orWhere('contact_principal', 'like', "%{$terme}%")
                   ->orWhere('telephone', 'like', "%{$terme}%")
                   ->orWhere('email', 'like', "%{$terme}%");
             });
         }
-        
         return $query;
+    }
+
+    /**
+     * Scope pour les fournisseurs à risque.
+     */
+    public function scopeARisque($query)
+    {
+        return $query->whereHas('supplierIssues', function($q) {
+            $q->where('statut', 'open');
+        })->orWhereHas('supplierOrders', function($q) {
+            $q->where('statut', 'pending')
+              ->where('date_livraison_prevue', '<', now());
+        });
+    }
+
+    /**
+     * Accesseur pour le nom de la société.
+     */
+    public function getNomSocieteAttribute()
+    {
+        return $this->societe ? $this->societe->raison_sociale : 'N/A';
+    }
+
+    public function getRaisonSocialeAttribute()
+    {
+        return $this->nom;
+    }
+
+    /**
+     * Accesseur pour le statut formaté.
+     */
+    public function getStatutFormateAttribute()
+    {
+        return $this->statut == 'actif' ? 'Actif' : 'Inactif';
+    }
+
+    /**
+     * Accesseur pour le type formaté.
+     */
+    public function getTypeFormateAttribute()
+    {
+        $types = [
+            'personne_physique' => 'Personne Physique',
+            'entreprise' => 'Entreprise',
+            'institution' => 'Institution'
+        ];
+        return $types[$this->type] ?? $this->type;
+    }
+
+    /**
+     * Accesseur pour l'activité formatée.
+     */
+    public function getActiviteFormateeAttribute()
+    {
+        $activites = [
+            'transport' => 'Transport',
+            'logistique' => 'Logistique',
+            'matieres_premieres' => 'Matières Premières',
+            'services' => 'Services',
+            'autre' => 'Autre'
+        ];
+        return $activites[$this->activite] ?? $this->activite;
+    }
+
+    /**
+     * Accesseur pour la condition de règlement formatée.
+     */
+    public function getConditionReglementFormateeAttribute()
+    {
+        $conditions = [
+            'comptant' => 'Comptant',
+            'credit' => 'À crédit'
+        ];
+        return $conditions[$this->condition_reglement] ?? $this->condition_reglement;
+    }
+
+    /**
+     * Accesseur pour la devise formatée.
+     */
+    public function getDeviseFormateeAttribute()
+    {
+        $devises = [
+            'XAF' => 'Franc CFA',
+            'EUR' => 'Euro',
+            'USD' => 'Dollar Américain'
+        ];
+        return $devises[$this->devise] ?? $this->devise;
     }
 }

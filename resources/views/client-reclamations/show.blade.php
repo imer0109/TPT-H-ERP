@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('content')
 <div class="container mx-auto px-4 py-6">
@@ -8,7 +8,7 @@
             <a href="{{ route('client-reclamations.index') }}" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded">
                 <i class="fas fa-arrow-left mr-2"></i> Retour à la liste
             </a>
-            <a href="{{ route('client-reclamations.edit', $reclamation) }}" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+            <a href="{{ route('client-reclamations.edit', $reclamation) }}" class="bg-primary-500 hover:bg-primary-600 text-white font-bold py-2 px-4 rounded">
                 <i class="fas fa-edit mr-2"></i> Modifier
             </a>
         </div>
@@ -36,7 +36,7 @@
                             @php
                                 $typeClasses = [
                                     'qualite_produit' => 'bg-orange-100 text-orange-800',
-                                    'service_client' => 'bg-blue-100 text-blue-800',
+                                    'service_client' => 'bg-primary-100 text-primary-800',
                                     'livraison' => 'bg-purple-100 text-purple-800',
                                     'facturation' => 'bg-yellow-100 text-yellow-800',
                                     'autre' => 'bg-gray-100 text-gray-800'
@@ -157,7 +157,7 @@
                                 <option value="fermee" {{ $reclamation->statut == 'fermee' ? 'selected' : '' }}>Fermée</option>
                             </select>
                         </div>
-                        <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+                        <button type="submit" class="w-full bg-primary-500 hover:bg-primary-600 text-white font-bold py-2 px-4 rounded">
                             <i class="fas fa-check-circle mr-2"></i> Mettre à jour le statut
                         </button>
                     </form>
@@ -220,7 +220,7 @@
                                     </div>
                                 </div>
                                 <div class="flex space-x-2">
-                                    <a href="{{ route('documents.show', $document) }}" target="_blank" class="text-blue-500 hover:text-blue-700">
+                                    <a href="{{ route('documents.show', $document) }}" target="_blank" class="text-primary-500 hover:text-primary-700">
                                         <i class="fas fa-eye"></i>
                                     </a>
                                     <a href="{{ route('documents.download', $document) }}" class="text-green-500 hover:text-green-700">

@@ -14,7 +14,7 @@ class Service extends Model
 
     protected $guarded = ['id'];
 
-    public $timestamps = false;
+    public $timestamps = true;
 
     public function file(): MorphOne
     {

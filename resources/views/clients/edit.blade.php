@@ -1,11 +1,11 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('content')
 <div class="container mx-auto px-4 py-6">
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-2xl font-bold text-gray-800">Modifier le client: {{ $client->nom_raison_sociale }}</h1>
         <div class="flex space-x-2">
-            <a href="{{ route('clients.show', $client) }}" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+            <a href="{{ route('clients.show', $client) }}" class="bg-primary-600 hover:bg-primary-700 text-white font-bold py-2 px-4 rounded">
                 <i class="fas fa-eye mr-2"></i> Voir la fiche
             </a>
             <a href="{{ route('clients.index') }}" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded">
@@ -101,6 +101,40 @@
                     <input type="text" name="ville" id="ville" value="{{ old('ville', $client->ville) }}" 
                         class="w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring focus:ring-red-200">
                     @error('ville')
+                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label for="contact_principal" class="block text-sm font-medium text-gray-700 mb-1">Contact principal (entreprise)</label>
+                    <input type="text" name="contact_principal" id="contact_principal" value="{{ old('contact_principal', $client->contact_principal) }}" 
+                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring focus:ring-red-200">
+                    @error('contact_principal')
+                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label for="whatsapp" class="block text-sm font-medium text-gray-700 mb-1">WhatsApp</label>
+                    <input type="text" name="whatsapp" id="whatsapp" value="{{ old('whatsapp', $client->whatsapp) }}" 
+                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring focus:ring-red-200">
+                    @error('whatsapp')
+                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label for="canal_acquisition" class="block text-sm font-medium text-gray-700 mb-1">Canal d'acquisition</label>
+                    <select name="canal_acquisition" id="canal_acquisition" 
+                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring focus:ring-red-200">
+                        <option value="">Sélectionner un canal</option>
+                        <option value="commerce_direct" {{ old('canal_acquisition', $client->canal_acquisition) == 'commerce_direct' ? 'selected' : '' }}>Commerce direct</option>
+                        <option value="web" {{ old('canal_acquisition', $client->canal_acquisition) == 'web' ? 'selected' : '' }}>Web</option>
+                        <option value="recommande" {{ old('canal_acquisition', $client->canal_acquisition) == 'recommande' ? 'selected' : '' }}>Recommandé</option>
+                        <option value="reseaux_sociaux" {{ old('canal_acquisition', $client->canal_acquisition) == 'reseaux_sociaux' ? 'selected' : '' }}>Réseaux sociaux</option>
+                        <option value="evenement" {{ old('canal_acquisition', $client->canal_acquisition) == 'evenement' ? 'selected' : '' }}>Événement</option>
+                    </select>
+                    @error('canal_acquisition')
                         <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                     @enderror
                 </div>
@@ -216,9 +250,9 @@
                     <select name="categorie" id="categorie" 
                         class="w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring focus:ring-red-200">
                         <option value="">Sélectionner une catégorie</option>
-                        <option value="A" {{ old('categorie', $client->categorie) == 'A' ? 'selected' : '' }}>A - Premium</option>
-                        <option value="B" {{ old('categorie', $client->categorie) == 'B' ? 'selected' : '' }}>B - Standard</option>
-                        <option value="C" {{ old('categorie', $client->categorie) == 'C' ? 'selected' : '' }}>C - Occasionnel</option>
+                        <option value="or" {{ old('categorie', $client->categorie) == 'or' ? 'selected' : '' }}>Or - Premium</option>
+                        <option value="argent" {{ old('categorie', $client->categorie) == 'argent' ? 'selected' : '' }}>Argent - Standard</option>
+                        <option value="bronze" {{ old('categorie', $client->categorie) == 'bronze' ? 'selected' : '' }}>Bronze - Occasionnel</option>
                     </select>
                     @error('categorie')
                         <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
@@ -275,7 +309,7 @@
                             @foreach($client->documents as $document)
                                 <div class="border rounded-lg p-3 flex items-center justify-between">
                                     <div class="flex items-center">
-                                        <span class="text-xl mr-2 {{ $document->format == 'pdf' ? 'text-red-500' : 'text-blue-500' }}">
+                                        <span class="text-xl mr-2 {{ $document->format == 'pdf' ? 'text-red-500' : 'text-primary-500' }}">
                                             <i class="fas {{ $document->format == 'pdf' ? 'fa-file-pdf' : 'fa-file-image' }}"></i>
                                         </span>
                                         <div class="truncate max-w-xs">
@@ -284,7 +318,7 @@
                                         </div>
                                     </div>
                                     <div class="flex">
-                                        <a href="{{ route('documents.download', $document) }}" class="text-blue-600 hover:text-blue-900 mr-2">
+                                        <a href="{{ route('documents.download', $document) }}" class="text-primary-600 hover:text-primary-900 mr-2">
                                             <i class="fas fa-download"></i>
                                         </a>
                                         <form action="{{ route('documents.destroy', $document) }}" method="POST" class="inline-block">

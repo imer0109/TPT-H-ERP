@@ -24,7 +24,9 @@ class PermissionController extends Controller
         $validated = $request->validate([
             'nom' => 'required|string|max:255|unique:permissions,nom',
             'module' => 'required|string|max:255',
-            'action' => 'required|string|max:255'
+            'resource' => 'nullable|string|max:255',
+            'action' => 'required|string|max:255',
+            'description' => 'nullable|string'
         ]);
 
         Permission::create($validated);
@@ -43,7 +45,9 @@ class PermissionController extends Controller
         $validated = $request->validate([
             'nom' => 'required|string|max:255|unique:permissions,nom,' . $permission->id,
             'module' => 'required|string|max:255',
-            'action' => 'required|string|max:255'
+            'resource' => 'nullable|string|max:255',
+            'action' => 'required|string|max:255',
+            'description' => 'nullable|string'
         ]);
 
         $permission->update($validated);

@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('content')
 <div class="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -22,10 +22,53 @@
         </div>
     @endif
 
-    <!-- Barre de recherche -->
-    <div class="mb-4">
-        <input type="text" placeholder="Rechercher une société..."
-            class="w-full sm:w-1/3 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-500">
+    @if(session('error'))
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-4 flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+            </svg>
+            {{ session('error') }}
+        </div>
+    @endif
+
+    <!-- Advanced Search and Filters -->
+    <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+        <form method="GET" action="{{ route('companies.index') }}" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div>
+                <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Recherche</label>
+                <input type="text" name="search" id="search" value="{{ request('search') }}" 
+                    class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500" 
+                    placeholder="Raison sociale, pays, ville, NIU, RCCM, secteur...">
+                <p class="text-xs text-gray-500 mt-1">Séparez les mots-clés par des espaces ou des virgules pour une recherche avancée</p>
+            </div>
+            
+            <div>
+                <label for="type" class="block text-sm font-medium text-gray-700 mb-1">Type</label>
+                <select name="type" id="type" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500">
+                    <option value="">Tous les types</option>
+                    <option value="holding" {{ request('type') === 'holding' ? 'selected' : '' }}>Holding</option>
+                    <option value="filiale" {{ request('type') === 'filiale' ? 'selected' : '' }}>Filiale</option>
+                </select>
+            </div>
+            
+            <div>
+                <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Statut</label>
+                <select name="status" id="status" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500">
+                    <option value="">Tous les statuts</option>
+                    <option value="active" {{ request('status') === 'active' ? 'selected' : '' }}>Active</option>
+                    <option value="inactive" {{ request('status') === 'inactive' ? 'selected' : '' }}>Inactive</option>
+                </select>
+            </div>
+            
+            <div class="flex items-end">
+                <button type="submit" class="bg-primary-600 hover:bg-primary-700 text-white font-semibold py-2 px-4 rounded-lg mr-2">
+                    Filtrer
+                </button>
+                <a href="{{ route('companies.index') }}" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded-lg">
+                    Réinitialiser
+                </a>
+            </div>
+        </form>
     </div>
 
     <div class="bg-white shadow-lg rounded-lg overflow-hidden">
@@ -41,8 +84,8 @@
                 </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
-                @foreach($companies as $company)
-                    <tr class="hover:bg-gray-50 transition">
+                @forelse($companies as $company)
+                    <tr class="hover:bg-primary-50 transition">
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="flex items-center">
                                 @if($company->logo)
@@ -70,10 +113,38 @@
                             </span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-3">
+                            <a href="{{ route('companies.dashboard.company', $company) }}"
+                               class="text-primary-600 hover:text-primary-900 inline-flex items-center">
+                                📊 Dashboard
+                            </a>
                             <a href="{{ route('companies.edit', $company) }}"
                                class="text-indigo-600 hover:text-indigo-900 inline-flex items-center">
                                 ✏ Modifier
                             </a>
+                            <form action="{{ route('companies.duplicate', $company) }}" method="POST" class="inline">
+                                @csrf
+                                <button type="submit" class="text-green-600 hover:text-green-900"
+                                        onclick="return confirm('Êtes-vous sûr de vouloir dupliquer cette société ?')">
+                                    📋 Dupliquer
+                                </button>
+                            </form>
+                            @if($company->active)
+                                <form action="{{ route('companies.archive', $company) }}" method="POST" class="inline">
+                                    @csrf
+                                    <button type="submit" class="text-yellow-600 hover:text-yellow-900"
+                                            onclick="return confirm('Êtes-vous sûr de vouloir archiver cette société ?')">
+                                        📦 Archiver
+                                    </button>
+                                </form>
+                            @else
+                                <form action="{{ route('companies.archive', $company) }}" method="POST" class="inline">
+                                    @csrf
+                                    <button type="submit" class="text-primary-600 hover:text-primary-900"
+                                            onclick="return confirm('Êtes-vous sûr de vouloir réactiver cette société ?')">
+                                        🔁 Réactiver
+                                    </button>
+                                </form>
+                            @endif
                             <form action="{{ route('companies.destroy', $company) }}" method="POST" class="inline">
                                 @csrf
                                 @method('DELETE')
@@ -84,7 +155,13 @@
                             </form>
                         </td>
                     </tr>
-                @endforeach
+                @empty
+                    <tr>
+                        <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                            Aucune société trouvée.
+                        </td>
+                    </tr>
+                @endforelse
             </tbody>
         </table>
     </div>

@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('content')
 <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -61,7 +61,13 @@
                         <dt class="text-sm font-medium text-gray-500">Entité</dt>
                         <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                             @if($cashRegister->entity)
-                                {{ class_basename($cashRegister->entity_type) === 'Societe' ? 'Société' : 'Agence' }} : {{ $cashRegister->entity->nom }}
+                                @if($cashRegister->entity instanceof \App\Models\Company)
+                                    Société : {{ $cashRegister->entity->raison_sociale }}
+                                @elseif($cashRegister->entity instanceof \App\Models\Agency)
+                                    Agence : {{ $cashRegister->entity->nom }}
+                                @else
+                                    {{ class_basename($cashRegister->entity_type) }} : {{ $cashRegister->entity->nom ?? $cashRegister->entity->raison_sociale ?? 'N/A' }}
+                                @endif
                             @else
                                 Non assignée
                             @endif
@@ -85,7 +91,7 @@
                     @if(!$cashRegister->est_ouverte)
                     <div class="mb-4">
                         <h4 class="text-md font-medium text-gray-700 mb-2">Ouvrir la caisse</h4>
-                        <form action="{{ route('cash.sessions.open', $cashRegister) }}" method="POST" class="space-y-4">
+                        <form action="{{ route('cash.registers.open', $cashRegister) }}" method="POST" class="space-y-4">
                             @csrf
                             <div>
                                 <label for="solde_initial" class="block text-sm font-medium text-gray-700">Solde initial</label>
@@ -110,7 +116,7 @@
                     @else
                     <div class="mb-4">
                         <h4 class="text-md font-medium text-gray-700 mb-2">Nouvelle transaction</h4>
-                        <a href="{{ route('cash.transactions.create', $cashRegister) }}" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        <a href="{{ route('cash.transactions.create', $cashRegister) }}" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
                             Créer une transaction
                         </a>
                     </div>
@@ -182,9 +188,9 @@
                                 <p class="text-sm font-medium text-red-800">Décaissements</p>
                                 <p class="text-xl font-bold text-red-600">{{ number_format($decaissements, 2, ',', ' ') }} FCFA</p>
                             </div>
-                            <div class="bg-blue-50 p-4 rounded-lg">
-                                <p class="text-sm font-medium text-blue-800">Balance</p>
-                                <p class="text-xl font-bold {{ $balance >= 0 ? 'text-blue-600' : 'text-red-600' }}">{{ number_format($balance, 2, ',', ' ') }} FCFA</p>
+                            <div class="bg-primary-50 p-4 rounded-lg">
+                                <p class="text-sm font-medium text-primary-800">Balance</p>
+                                <p class="text-xl font-bold {{ $balance >= 0 ? 'text-primary-600' : 'text-red-600' }}">{{ number_format($balance, 2, ',', ' ') }} FCFA</p>
                             </div>
                         </div>
                         <div>
@@ -207,14 +213,14 @@
             </div>
             <div class="border-t border-gray-200">
                 <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
+                    <thead class="bg-primary-50">
                         <tr>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date d'ouverture</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date de fermeture</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Caissier</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Solde initial</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Solde final</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-primary-700 uppercase tracking-wider">Date d'ouverture</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-primary-700 uppercase tracking-wider">Date de fermeture</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-primary-700 uppercase tracking-wider">Caissier</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-primary-700 uppercase tracking-wider">Solde initial</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-primary-700 uppercase tracking-wider">Solde final</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-primary-700 uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
@@ -230,7 +236,7 @@
                                 {{ $session->solde_final ? number_format($session->solde_final, 2, ',', ' ') . ' FCFA' : '-' }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                <a href="{{ route('cash.sessions.report', $session) }}" class="text-indigo-600 hover:text-indigo-900">Rapport</a>
+                                <a href="{{ route('cash.sessions.report', [$cashRegister, $session]) }}" class="text-indigo-600 hover:text-indigo-900">Rapport</a>
                             </td>
                         </tr>
                         @empty
