@@ -170,7 +170,7 @@
             </div>
 
             <!-- Notifications / Alertes -->
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            <div class="bg-white rounded-2xl shadow-sm border bord er-gray-100 p-6">
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-lg font-bold text-gray-900">Notifications</h3>
                     <span class="bg-red-100 text-red-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">{{ count($alerts ?? []) }}</span>
@@ -199,7 +199,7 @@
                         </div>
                     @endforelse
                 </div>
-            </div>
+            </div> 
         </div>
     </div>
 </div>
@@ -282,6 +282,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 });
-</script>
+</script >
 @endpush
 @endsection

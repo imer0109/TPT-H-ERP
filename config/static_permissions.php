@@ -49,13 +49,49 @@ return [
             'users.create',
             'users.edit',
             'roles.view',
-            'permissions.view'
+            'permissions.view',
+            'hr.view',
+            'hr.create',
+            'hr.edit',
+            'hr.dashboard',
+            'accounting.view',
+            'accounting.create',
+            'accounting.edit',
+            'accounting.dashboard',
+            'purchases.view',
+            'purchases.create',
+            'purchases.edit',
+            'purchases.dashboard',
+            'clients.view',
+            'clients.create',
+            'clients.edit',
+            'clients.dashboard',
+            'cash.view',
+            'cash.create',
+            'cash.edit',
+            'cash.dashboard',
+            'suppliers.view',
+            'suppliers.create',
+            'suppliers.edit',
+            'suppliers.dashboard'
         ],
         
         'supervisor' => [
             'users.view',
             'users.edit',
-            'roles.view'
+            'roles.view',
+            'hr.view',
+            'hr.dashboard',
+            'accounting.view',
+            'accounting.dashboard',
+            'purchases.view',
+            'purchases.dashboard',
+            'clients.view',
+            'clients.dashboard',
+            'cash.view',
+            'cash.dashboard',
+            'suppliers.view',
+            'suppliers.dashboard'
         ],
         
         'employee' => [
@@ -90,7 +126,12 @@ return [
             'hr.view',
             'hr.create',
             'hr.edit',
-            'hr.dashboard'
+            'hr.dashboard',
+            'users.view',
+            'users.create',
+            'users.edit',
+            'roles.view',
+            'permissions.view'
         ]
     ],
 
@@ -119,7 +160,8 @@ return [
             'accounting.view',
             'accounting.create',
             'accounting.edit',
-            'accounting.dashboard'
+            'accounting.dashboard',
+            'accounting.delete'
         ]
     ],
 
@@ -148,7 +190,12 @@ return [
             'purchases.view',
             'purchases.create',
             'purchases.edit',
-            'purchases.dashboard'
+            'purchases.dashboard',
+            'purchases.delete',
+            'suppliers.view',
+            'suppliers.create',
+            'suppliers.edit',
+            'suppliers.dashboard'
         ]
     ],
 
@@ -177,7 +224,8 @@ return [
             'clients.view',
             'clients.create',
             'clients.edit',
-            'clients.dashboard'
+            'clients.dashboard',
+            'clients.delete'
         ]
     ],
 
@@ -206,7 +254,8 @@ return [
             'cash.view',
             'cash.create',
             'cash.edit',
-            'cash.dashboard'
+            'cash.dashboard',
+            'cash.delete'
         ]
     ],
 
@@ -236,6 +285,22 @@ return [
             'suppliers.create',
             'suppliers.edit',
             'suppliers.dashboard'
+        ],
+        'supplier' => [
+            'suppliers.view',
+            'suppliers.create',
+            'suppliers.edit',
+            'suppliers.dashboard',
+            'purchases.view',
+            'purchases.dashboard'
+        ],
+        'suppliers' => [
+            'suppliers.view',
+            'suppliers.create',
+            'suppliers.edit',
+            'suppliers.dashboard',
+            'purchases.view',
+            'purchases.dashboard'
         ]
     ],
 
@@ -290,7 +355,9 @@ return [
         ],
         'agent_operationnel' => [
             'operational.view',
-            'operational.dashboard'
+            'operational.dashboard',
+            'users.view',
+            'roles.view'
         ]
     ],
 

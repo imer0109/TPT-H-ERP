@@ -16,7 +16,7 @@
 <?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
 <?php endif; ?>
 <?php $component->withAttributes(['href' => ''.e(route('user-management.create')).'','variant' => 'primary']); ?>
-            <i class="fas fa-plus mr-2"></i>Nouvel Utilisateur
+            <i class="fas fa-plus mr-2 text-white "></i>Nouvel Utilisateur
          <?php echo $__env->renderComponent(); ?>
 <?php endif; ?>
 <?php if (isset($__attributesOriginald0f1fd2689e4bb7060122a5b91fe8561)): ?>

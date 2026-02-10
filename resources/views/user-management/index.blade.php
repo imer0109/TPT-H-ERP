@@ -7,7 +7,7 @@
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-3xl font-bold text-gray-800">Gestion des Utilisateurs</h1>
         <x-button href="{{ route('user-management.create') }}" variant="primary">
-            <i class="fas fa-plus mr-2"></i>Nouvel Utilisateur
+            <i class="fas fa-plus mr-2 text-white "></i>Nouvel Utilisateur
         </x-button>
     </div>
 

@@ -1,121 +1,139 @@
 <!DOCTYPE html>
-<html lang="fr" class="h-full bg-gray-50">
+<html lang="fr" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Connexion | TPT-H ERP</title>
+    <title>CONNECTION | TPT-H ERP</title>
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+
     <style>
+
         body { font-family: 'Inter', sans-serif; }
     </style>
 </head>
-<body class="h-full flex flex-col justify-center py-12 sm:px-6 lg:px-8 bg-slate-50">
-    <div class="sm:mx-auto sm:w-full sm:max-w-md">
-        <!-- Logo ou Icone -->
-        <div class="mx-auto h-12 w-12 bg-primary-600 rounded-xl flex items-center justify-center shadow-lg transform rotate-3 mb-4">
-            <svg class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-            </svg>
-        </div>
-        <h2 class="mt-2 text-center text-3xl font-extrabold text-gray-900 tracking-tight">
-            TPT-H ERP
-        </h2>
-        <p class="mt-2 text-center text-sm text-gray-600">
-            Connectez-vous à votre espace de gestion
-        </p>
-    </div>
 
-    <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div class="bg-white py-8 px-4 shadow-xl shadow-slate-200/50 sm:rounded-2xl sm:px-10 border border-gray-100">
-            
+<body class="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-100 via-slate-50 to-slate-200">
+
+    <div class="w-full max-w-md px-6">
+        <!-- Logo -->
+        <div class="flex justify-center mb-6">
+            <div class="bg-white rounded-2xl shadow-lg p-4">
+                <img src="{{ asset('images/logo-tpt.png') }}" alt="Logo TPT" class="h-12 mx-auto">
+            </div>
+        </div>
+
+        <!-- Title -->
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-slate-800 tracking-tight">
+                TPT-H ERP
+            </h1>
+            <!-- <p class="mt-2 text-sm text-slate-500">
+                Accédez à votre espace de gestion sécurisé
+            </p> -->
+        </div>
+
+        <!-- Card -->
+        <div class="bg-white/80 backdrop-blur-xl border border-white/60 rounded-2xl shadow-xl px-8 py-10">
+
+            <!-- Errors -->
             @if ($errors->any())
-                <div class="mb-6 rounded-lg bg-red-50 p-4 border border-red-100">
-                    <div class="flex">
-                        <div class="flex-shrink-0">
-                            <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
-                            </svg>
-                        </div>
-                        <div class="ml-3">
-                            <h3 class="text-sm font-medium text-red-800">Erreur de connexion</h3>
-                            <div class="mt-2 text-sm text-red-700">
-                                <ul role="list" class="list-disc pl-5 space-y-1">
-                                    @foreach ($errors->all() as $error)
-                                        <li>{{ $error }}</li>
-                                    @endforeach
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
+                <div class="mb-6 rounded-xl bg-red-50 border border-red-200 p-4 text-sm text-red-700">
+                    <ul class="list-disc pl-5 space-y-1">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
                 </div>
             @endif
 
-            <form class="space-y-6" action="{{ route('login') }}" method="POST">
+            <!-- Form -->
+            <form action="{{ route('login') }}" method="POST" class="space-y-6">
                 @csrf
-                
+
+                <!-- Email -->
                 <div>
-                    <label for="email" class="block text-sm font-medium text-gray-700">
+                    <label for="email" class="block text-sm font-medium text-slate-700 mb-1">
                         Adresse email
                     </label>
-                    <div class="mt-1">
-                        <input id="email" name="email" type="email" autocomplete="email" required value="{{ old('email') }}"
-                            class="appearance-none block w-full px-3 py-2.5 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm transition-colors duration-200">
-                    </div>
+                    <input
+                        id="email"
+                        name="email"
+                        type="email"
+                        required
+                        value="{{ old('email') }}"
+                        class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm
+                               focus:border-primary-600 focus:ring-2 focus:ring-primary-500/30
+                               transition outline-none"
+                        placeholder="exemple@tpt-h.com"
+                    >
                 </div>
 
+                <!-- Password -->
                 <div>
-                    <label for="password" class="block text-sm font-medium text-gray-700">
+                    <label for="password" class="block text-sm font-medium text-slate-700 mb-1">
                         Mot de passe
                     </label>
-                    <div class="mt-1 relative rounded-md shadow-sm">
-                        <input id="password" name="password" type="password" autocomplete="current-password" required
-                            class="appearance-none block w-full px-3 py-2.5 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm transition-colors duration-200">
-                    </div>
+                    <input
+                        id="password"
+                        name="password"
+                        type="password"
+                        required
+                        class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm
+                               focus:border-primary-600 focus:ring-2 focus:ring-primary-500/30
+                               transition outline-none"
+                        placeholder="••••••••"
+                    >
                 </div>
 
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center">
-                        <input id="remember" name="remember" type="checkbox"
-                            class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded transition duration-150 ease-in-out">
-                        <label for="remember" class="ml-2 block text-sm text-gray-900">
-                            Se souvenir de moi
-                        </label>
-                    </div>
+                <!-- Options -->
+                <div class="flex items-center justify-between text-sm">
+                    <label class="flex items-center gap-2 text-slate-600">
+                        <input
+                            type="checkbox"
+                            name="remember"
+                            class="rounded border-slate-300 text-primary-600 focus:ring-primary-500"
+                        >
+                        Se souvenir de moi
+                    </label>
 
-                    <div class="text-sm">
-                        <a href="{{ route('password.request') }}" class="font-medium text-primary-600 hover:text-primary-500 transition-colors">
-                            Mot de passe oublié ?
-                        </a>
-                    </div>
+                    <a href="{{ route('password.request') }}"
+                       class="text-primary-600 hover:text-primary-700 font-medium transition">
+                        Mot de passe oublié ?
+                    </a>
                 </div>
 
-                <div>
-                    <button type="submit"
-                        class="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-200 transform hover:scale-[1.02]">
-                        Se connecter
-                    </button>
-                </div>
+                <!-- Button -->
+                <button
+                    type="submit"
+                    class="w-full rounded-xl bg-primary-600 py-3 text-white font-semibold
+                           hover:bg-primary-700 transition-all duration-200
+                           focus:ring-2 focus:ring-primary-500/40 focus:outline-none
+                           active:scale-[0.98]"
+                >
+                    Se connecter
+                </button>
             </form>
 
-            <div class="mt-6">
-                <div class="relative">
-                    <div class="absolute inset-0 flex items-center">
-                        <div class="w-full border-t border-gray-300"></div>
-                    </div>
-                    <div class="relative flex justify-center text-sm">
-                        <span class="px-2 bg-white text-gray-500">
-                            Sécurisé par TPT-H
-                        </span>
-                    </div>
-                </div>
+            <!-- Divider -->
+            <div class="my-8 flex items-center gap-3">
+                <div class="h-px w-full bg-slate-200"></div>
+                <span class="text-xs text-slate-400">Sécurisé</span>
+                <div class="h-px w-full bg-slate-200"></div>
             </div>
+
+            <p class="text-center text-xs text-slate-500">
+                Plateforme sécurisée TPT-H ERP
+            </p>
         </div>
-        
-        <p class="mt-8 text-center text-xs text-gray-500">
-            &copy; {{ date('Y') }} TPT International. Tous droits réservés.
+
+        <!-- Footer -->
+        <p class="mt-8 text-center text-xs text-slate-500">
+            © {{ date('Y') }} TPT International — Tous droits réservés
         </p>
     </div>
+
 </body>
 </html>

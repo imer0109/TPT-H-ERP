@@ -38,6 +38,12 @@ class UserManagementController extends Controller
      */
     public function store(Request $request)
     {
+        // Vérification des permissions de création d'utilisateur
+        if (!$this->canCurrentUserCreateUser($request->roles ?? [])) {
+            return redirect()->back()
+                ->with('error', 'Vous n\'avez pas les autorisations nécessaires pour créer cet utilisateur.');
+        }
+        
         $validator = Validator::make($request->all(), [
             'nom' => 'required|string|max:255',
             'prenom' => 'required|string|max:255',
@@ -449,5 +455,33 @@ class UserManagementController extends Controller
 
         return redirect()->route('dashboard')
             ->with('success', 'Profil mis à jour avec succès.');
+    }
+    
+    /**
+     * Vérifie si l'utilisateur actuel peut créer un utilisateur avec les rôles spécifiés
+     */
+    private function canCurrentUserCreateUser($selectedRoleIds)
+    {
+        $currentUser = auth()->user();
+        
+        // Vérifier si l'utilisateur actuel est administrateur
+        if ($currentUser->hasRole('administrateur') || $currentUser->hasRole('admin')) {
+            return true;
+        }
+        
+        // Vérifier si l'utilisateur est RH
+        if ($currentUser->hasRole('hr') || $currentUser->hasRole('rh')) {
+            // L'utilisateur RH ne peut créer que des agents opérationnels et superviseurs
+            $selectedRoles = Role::whereIn('id', $selectedRoleIds)->get();
+            foreach ($selectedRoles as $role) {
+                if (!in_array(strtolower($role->slug), ['operational', 'agent_operationnel', 'supervisor', 'superviseur'])) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        
+        // Les autres rôles ne peuvent pas créer d'utilisateurs
+        return false;
     }
 }

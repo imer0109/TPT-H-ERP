@@ -47,14 +47,10 @@
                class="fixed inset-y-0 left-0 z-50 w-72 bg-slate-900 text-white transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-auto flex flex-col shadow-xl border-r border-slate-800">
             
             <!-- Logo -->
+            
             <div class="flex items-center justify-center h-16 bg-slate-950 px-6 border-b border-slate-800 flex-shrink-0">
                 <a href="/" class="flex items-center space-x-3 group">
-                    <div class="bg-primary-600 rounded-lg p-1.5 group-hover:bg-primary-500 transition-colors">
-                        <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                        </svg>
-                    </div>
-                    <span class="text-lg font-bold tracking-wide text-white">TPT-H ERP</span>
+                    <img src="<?php echo e(asset('images/logo-tpt.png')); ?>" alt="Logo TPT" class="h-10 w-auto">TPT-H ERP
                 </a>
             </div>
 
@@ -117,7 +113,7 @@
                 <?php endif; ?>
 
                 <!-- Utilisateurs -->
-                <?php if(auth()->user() && auth()->user()->canAccessModule('users')): ?>
+                <?php if(auth()->user() && (auth()->user()->hasRole('administrateur') || auth()->user()->hasRole('admin') || auth()->user()->hasRole('hr') || auth()->user()->hasRole('rh'))): ?>
                 <div x-data="{ open: <?php echo e(request()->is('user-management*') || request()->is('users*') || request()->is('roles*') ? 'true' : 'false'); ?> }">
                     <button @click="open = !open" class="w-full flex items-center justify-between px-3 py-2.5 text-sm font-medium rounded-lg transition-colors <?php echo e(request()->is('user-management*') ? 'bg-slate-800 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white'); ?>">
                         <div class="flex items-center">
@@ -132,8 +128,8 @@
                     </button>
                     <div x-show="open" x-collapse class="space-y-1 mt-1 px-2">
                         <a href="<?php echo e(route('user-management.index')); ?>" class="block px-3 py-2 pl-11 text-sm font-medium rounded-md <?php echo e(request()->routeIs('user-management.index') ? 'text-white bg-primary-600/20' : 'text-slate-400 hover:text-white hover:bg-slate-800'); ?>">Tous les utilisateurs</a>
-                        <a href="<?php echo e(route('roles.index')); ?>" class="block px-3 py-2 pl-11 text-sm font-medium rounded-md <?php echo e(request()->routeIs('roles.index') ? 'text-white bg-primary-600/20' : 'text-slate-400 hover:text-white hover:bg-slate-800'); ?>">Rôles et permissions</a>
-                        <a href="<?php echo e(route('user-sessions.index')); ?>" class="block px-3 py-2 pl-11 text-sm font-medium rounded-md <?php echo e(request()->routeIs('user-sessions.index') ? 'text-white bg-primary-600/20' : 'text-slate-400 hover:text-white hover:bg-slate-800'); ?>">Sessions actives</a>
+                        <!-- <a href="<?php echo e(route('roles.index')); ?>" class="block px-3 py-2 pl-11 text-sm font-medium rounded-md <?php echo e(request()->routeIs('roles.index') ? 'text-white bg-primary-600/20' : 'text-slate-400 hover:text-white hover:bg-slate-800'); ?>">Rôles et permissions</a>
+                        <a href="<?php echo e(route('user-sessions.index')); ?>" class="block px-3 py-2 pl-11 text-sm font-medium rounded-md <?php echo e(request()->routeIs('user-sessions.index') ? 'text-white bg-primary-600/20' : 'text-slate-400 hover:text-white hover:bg-slate-800'); ?>">Sessions actives</a> -->
                     </div>
                 </div>
                 <?php endif; ?>
