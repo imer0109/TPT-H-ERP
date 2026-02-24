@@ -38,13 +38,13 @@ class EntityAuditTrail extends Model
     // Scope for companies
     public function scopeCompanies($query)
     {
-        return $query->where('entity_type', 'company');
+        return $query->where('entity_type', 'App\\Models\\Company');
     }
 
     // Scope for agencies
     public function scopeAgencies($query)
     {
-        return $query->where('entity_type', 'agency');
+        return $query->where('entity_type', 'App\\Models\\Agency');
     }
 
     // Scope for specific actions

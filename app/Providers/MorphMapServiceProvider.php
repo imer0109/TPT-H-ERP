@@ -23,7 +23,9 @@ class MorphMapServiceProvider extends ServiceProvider
         // Définir explicitement les mappings morphiques
         Relation::morphMap([
             'agence' => 'App\Models\Agency',
+            'agency' => 'App\Models\Agency',
             'societe' => 'App\Models\Company',
+            'company' => 'App\Models\Company',
             'Agency' => 'App\Models\Agency',
             'Company' => 'App\Models\Company',
             'App\Models\Agency' => 'App\Models\Agency',
