@@ -9,7 +9,7 @@
             <h2 class="text-2xl font-bold text-gray-800">Modifier mon profil</h2>
         </div>
         
-        <form action="{{ route('user-management.update-profile') }}" method="POST">
+        <form action="{{ route('user-management.profile.update') }}" method="POST">
             @csrf
             @method('PUT')
             

@@ -50,5 +50,23 @@ class DatabaseSeeder extends Seeder
 
         // Seed complete user list with roles
         $this->call(CompleteUserSeeder::class);
+        
+        // Seed modules principaux
+        $this->call([
+            // Modules de base
+            CompanySeeder::class,
+            AccountingModuleSeeder::class,
+            HRModuleSeeder::class,
+            ClientModuleSeeder::class,
+            SupplierModuleSeeder::class,
+            StockModuleSeeder::class,
+            CashModuleSeeder::class,
+            
+            // Modules avancés
+            SystemConfigurationSeeder::class,
+            ValidationModuleSeeder::class,
+            ProjectModuleSeeder::class,
+            DocumentationModuleSeeder::class,
+        ]);
     }
 }

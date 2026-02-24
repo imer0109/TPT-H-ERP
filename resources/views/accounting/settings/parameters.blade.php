@@ -44,13 +44,13 @@
                             <label class="block text-gray-600">Date de début de l'exercice *</label>
                             <input type="date" name="fiscal_year_start" 
                                    class="mt-1 block w-full border border-gray-300 rounded-md p-2" 
-                                   value="{{ old('fiscal_year_start', date('Y') . '-01-01') }}" required>
+                                   value="{{ old('fiscal_year_start', $settings['fiscal_year_start'] ?? date('Y').'-01-01') }}" required>
                         </div>
                         <div>
                             <label class="block text-gray-600">Date de fin de l'exercice *</label>
                             <input type="date" name="fiscal_year_end" 
                                    class="mt-1 block w-full border border-gray-300 rounded-md p-2" 
-                                   value="{{ old('fiscal_year_end', date('Y') . '-12-31') }}" required>
+                                   value="{{ old('fiscal_year_end', $settings['fiscal_year_end'] ?? date('Y').'-12-31') }}" required>
                         </div>
                     </div>
                 </div>
@@ -64,18 +64,18 @@
                         <div>
                             <label class="block text-gray-600">Devise par défaut *</label>
                             <select name="default_currency" class="mt-1 block w-full border border-gray-300 rounded-md p-2" required>
-                                <option value="EUR" {{ old('default_currency', 'EUR') == 'EUR' ? 'selected' : '' }}>Euro (€)</option>
-                                <option value="USD" {{ old('default_currency', 'EUR') == 'USD' ? 'selected' : '' }}>Dollar ($)</option>
-                                <option value="XOF" {{ old('default_currency', 'EUR') == 'XOF' ? 'selected' : '' }}>Franc CFA (CFA)</option>
-                                <option value="XAF" {{ old('default_currency', 'EUR') == 'XAF' ? 'selected' : '' }}>Franc CFA (FCFA)</option>
+                                <option value="EUR" {{ old('default_currency', $settings['default_currency'] ?? 'EUR') == 'EUR' ? 'selected' : '' }}>Euro (€)</option>
+                                <option value="USD" {{ old('default_currency', $settings['default_currency'] ?? 'EUR') == 'USD' ? 'selected' : '' }}>Dollar ($)</option>
+                                <option value="XOF" {{ old('default_currency', $settings['default_currency'] ?? 'EUR') == 'XOF' ? 'selected' : '' }}>Franc CFA (CFA)</option>
+                                <option value="XAF" {{ old('default_currency', $settings['default_currency'] ?? 'EUR') == 'XAF' ? 'selected' : '' }}>Franc CFA (FCFA)</option>
                             </select>
                         </div>
                         <div class="flex items-center space-x-3">
-                            <input type="checkbox" id="auto_numbering" name="auto_numbering" class="h-5 w-5 text-primary-600" {{ old('auto_numbering', true) ? 'checked' : '' }}>
+                            <input type="checkbox" id="auto_numbering" name="auto_numbering" class="h-5 w-5 text-primary-600" {{ old('auto_numbering', $settings['auto_numbering'] ?? true) ? 'checked' : '' }}>
                             <label for="auto_numbering" class="text-gray-700">Numérotation automatique des écritures</label>
                         </div>
                         <div class="flex items-center space-x-3">
-                            <input type="checkbox" id="validation_required" name="validation_required" class="h-5 w-5 text-primary-600" {{ old('validation_required', true) ? 'checked' : '' }}>
+                            <input type="checkbox" id="validation_required" name="validation_required" class="h-5 w-5 text-primary-600" {{ old('validation_required', $settings['validation_required'] ?? true) ? 'checked' : '' }}>
                             <label for="validation_required" class="text-gray-700">Validation requise pour les écritures</label>
                         </div>
                     </div>

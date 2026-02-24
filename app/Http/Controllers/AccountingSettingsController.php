@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Models\ChartOfAccount;
 use App\Models\AccountingJournal;
 use App\Models\CostCenter;
 use App\Models\Project;
 use App\Models\Company;
+use App\Models\Settings;
 
 class AccountingSettingsController extends Controller
 {
@@ -232,8 +234,9 @@ class AccountingSettingsController extends Controller
     public function parameters()
     {
         $companies = Company::all();
+        $settings = Settings::getAccountingSettings();
         
-        return view('accounting.settings.parameters', compact('companies'));
+        return view('accounting.settings.parameters', compact('companies', 'settings'));
     }
 
     /**
@@ -249,8 +252,8 @@ class AccountingSettingsController extends Controller
             'validation_required' => 'boolean'
         ]);
 
-        // Here you would typically save these settings to a settings table
-        // For now, we'll just redirect with success message
+        // Save settings to the settings table
+        Settings::saveAccountingSettings($request->all());
         
         return redirect()->route('accounting.settings.parameters')
             ->with('success', 'Paramètres comptables mis à jour avec succès.');

@@ -245,7 +245,14 @@
                             {{ auth()->user() && auth()->user()->roles->first() ? auth()->user()->roles->first()->nom : 'Utilisateur' }}
                         </p>
                     </div>
-                    <form method="POST" action="{{ route('logout') }}" class="ml-auto">
+                    <div class="ml-2">
+                        <a href="{{ route('user-management.profile.edit') }}" class="text-slate-400 hover:text-white p-1 rounded-md hover:bg-slate-800 transition-colors" title="Mon Profil">
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                        </a>
+                    </div>
+                    <form method="POST" action="{{ route('logout') }}" class="ml-2">
                         @csrf
                         <button type="submit" class="text-slate-400 hover:text-white p-1 rounded-md hover:bg-slate-800 transition-colors" title="Déconnexion">
                             <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

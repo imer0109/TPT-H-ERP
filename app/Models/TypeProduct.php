@@ -13,7 +13,7 @@ class TypeProduct extends Model
 
     protected $guarded = ['id'];
 
-    public $timestamps = false;
+    // public $timestamps = false;
 
     public function categories() {
         return $this->hasMany(Category::class, 'type_product_id');

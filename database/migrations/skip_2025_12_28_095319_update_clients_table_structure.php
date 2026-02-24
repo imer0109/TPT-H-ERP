@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -109,10 +110,14 @@ return new class extends Migration
             } catch (\Exception $e) {
                 // La contrainte existe peut-être déjà
             }
-            try {
-                $table->foreign('referent_commercial_id')->references('id')->on('users')->onDelete('set null');
-            } catch (\Exception $e) {
-                // La contrainte existe peut-être déjà
+            // Vérifier si la contrainte existe déjà
+            $foreignKeys = DB::select("SELECT CONSTRAINT_NAME FROM information_schema.KEY_COLUMN_USAGE WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'clients' AND COLUMN_NAME = 'referent_commercial_id' AND REFERENCED_TABLE_NAME IS NOT NULL");
+            if (empty($foreignKeys)) {
+                try {
+                    $table->foreign('referent_commercial_id')->references('id')->on('users')->onDelete('set null');
+                } catch (\Exception $e) {
+                    // La contrainte existe peut-être déjà
+                }
             }
         });
     }
