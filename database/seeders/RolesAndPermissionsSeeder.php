@@ -246,53 +246,49 @@ class RolesAndPermissionsSeeder extends Seeder
         $allPermissions = Permission::all();
         $adminRole->permissions()->syncWithoutDetaching($allPermissions->pluck('id'));
         
-        // Manager gets all permissions except user management roles and permissions
-        $managerPermissions = Permission::whereNotIn('module', ['users'])
-            ->orWhere(function($query) {
-                $query->where('module', 'users')
-                    ->whereNotIn('resource', ['rôles', 'permissions']);
-            })
+        // Manager gets comprehensive permissions for operational management
+        $managerPermissions = Permission::whereIn('module', ['companies', 'accounting', 'purchases', 'inventory', 'hr', 'cash', 'clients', 'dashboard'])
             ->get();
         $managerRole->permissions()->syncWithoutDetaching($managerPermissions->pluck('id'));
         
-        // Supervisor gets view and export permissions for all modules
-        $supervisorPermissions = Permission::whereIn('action', ['view', 'export'])->get();
-        $supervisorRole->permissions()->syncWithoutDetaching($supervisorPermissions->pluck('id'));
-        
-        // Agent gets basic operational permissions
-        $agentPermissions = Permission::whereIn('action', ['view', 'create', 'edit'])
-            ->whereNotIn('module', ['users', 'accounting'])
-            ->get();
-        $agentRole->permissions()->syncWithoutDetaching($agentPermissions->pluck('id'));
-        
-        // Viewer gets only view permissions
-        $viewerPermissions = Permission::where('action', 'view')->get();
-        $viewerRole->permissions()->syncWithoutDetaching($viewerPermissions->pluck('id'));
-        
-        // HR role gets permissions related to HR module
-        $hrPermissions = Permission::where('module', 'hr')
-            ->orWhere('module', 'users')
-            ->get();
-        $hrRole->permissions()->syncWithoutDetaching($hrPermissions->pluck('id'));
-        
-        // Accounting role gets permissions related to accounting module
-        $accountingPermissions = Permission::where('module', 'accounting')
-            ->orWhere('module', 'cash')
+        // Supervisor gets view and limited edit permissions for team management
+        $supervisorPermissions = Permission::whereIn('action', ['view', 'export'])
             ->orWhere(function($query) {
-                $query->where('module', 'users')
+                $query->where('action', 'edit')
+                    ->where('module', 'users')
                     ->where('resource', 'utilisateurs');
             })
             ->get();
+        $supervisorRole->permissions()->syncWithoutDetaching($supervisorPermissions->pluck('id'));
+        
+        // Agent gets operational permissions for daily tasks
+        $agentPermissions = Permission::whereIn('module', ['inventory', 'clients', 'cash'])
+            ->whereIn('action', ['view', 'create', 'edit'])
+            ->get();
+        $agentRole->permissions()->syncWithoutDetaching($agentPermissions->pluck('id'));
+        
+        // Viewer gets read-only access to dashboards and reports
+        $viewerPermissions = Permission::where('module', 'dashboard')
+            ->where('action', 'view')
+            ->get();
+        $viewerRole->permissions()->syncWithoutDetaching($viewerPermissions->pluck('id'));
+        
+        // HR role gets comprehensive HR permissions
+        $hrPermissions = Permission::whereIn('module', ['hr', 'users'])
+            ->get();
+        $hrRole->permissions()->syncWithoutDetaching($hrPermissions->pluck('id'));
+        
+        // Accounting role gets comprehensive financial permissions
+        $accountingPermissions = Permission::whereIn('module', ['accounting', 'cash', 'dashboard'])
+            ->get();
         $accountingRole->permissions()->syncWithoutDetaching($accountingPermissions->pluck('id'));
         
-        // Purchases role gets permissions related to purchases module
-        $purchasesPermissions = Permission::where('module', 'purchases')
-            ->orWhere('module', 'inventory')
-            ->orWhere('module', 'suppliers')
+        // Purchases role gets comprehensive procurement permissions
+        $purchasesPermissions = Permission::whereIn('module', ['purchases', 'inventory', 'suppliers', 'dashboard'])
             ->get();
         $purchasesRole->permissions()->syncWithoutDetaching($purchasesPermissions->pluck('id'));
         
-        // Supplier role gets permissions to access supplier portal
+        // Supplier role gets limited access to supplier portal
         $supplierPermissions = Permission::where('module', 'suppliers')
             ->where('resource', 'fournisseurs')
             ->whereIn('action', ['view', 'edit'])

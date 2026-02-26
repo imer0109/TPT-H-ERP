@@ -109,7 +109,7 @@ class UserManagementController extends Controller
         $user->load('roles:id,nom,slug');
         $roles = Role::select('id', 'nom', 'slug')->get();
         
-        return view('user-management.edit', compact('user', 'roles'));
+        return view('user-management.profile.edit', compact('user', 'roles'));
     }
 
     /**

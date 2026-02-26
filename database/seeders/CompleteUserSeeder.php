@@ -23,74 +23,83 @@ class CompleteUserSeeder extends Seeder
             [
                 'role_slug' => 'administrateur',
                 'role_name' => 'Administrateur Système',
-                'nom' => 'Administrateur',
-                'prenom' => 'Système',
+                'nom' => 'Dubois',
+                'prenom' => 'Alexandre',
                 'email' => 'admin@tpt-h.com',
                 'password' => 'password',
+                'telephone' => '+33 1 00 00 00 01'
             ],
             [
                 'role_slug' => 'manager',
                 'role_name' => 'Gestionnaire',
-                'nom' => 'Gestionnaire',
-                'prenom' => 'Principal',
+                'nom' => 'Martin',
+                'prenom' => 'Sophie',
                 'email' => 'manager@tpt-h.com',
                 'password' => 'password',
+                'telephone' => '+33 1 00 00 00 02'
             ],
             [
                 'role_slug' => 'supervisor',
                 'role_name' => 'Superviseur',
-                'nom' => 'Superviseur',
-                'prenom' => 'Equipe',
+                'nom' => 'Bernard',
+                'prenom' => 'Thomas',
                 'email' => 'supervisor@tpt-h.com',
                 'password' => 'password',
+                'telephone' => '+33 1 00 00 00 03'
             ],
             [
                 'role_slug' => 'agent',
                 'role_name' => 'Agent Opérationnel',
-                'nom' => 'Agent',
-                'prenom' => 'Opérationnel',
+                'nom' => 'Petit',
+                'prenom' => 'Marie',
                 'email' => 'agent@tpt-h.com',
                 'password' => 'password',
+                'telephone' => '+33 1 00 00 00 04'
             ],
             [
                 'role_slug' => 'viewer',
                 'role_name' => 'Consultant',
-                'nom' => 'Consultant',
-                'prenom' => 'Externe',
+                'nom' => 'Robert',
+                'prenom' => 'Pierre',
                 'email' => 'viewer@tpt-h.com',
                 'password' => 'password',
+                'telephone' => '+33 1 00 00 00 05'
             ],
             [
                 'role_slug' => 'hr',
                 'role_name' => 'Ressources Humaines',
-                'nom' => 'Ressources',
-                'prenom' => 'Humaines',
+                'nom' => 'Richard',
+                'prenom' => 'Céline',
                 'email' => 'hr@tpt-h.com',
                 'password' => 'password',
+                'telephone' => '+33 1 00 00 00 06'
             ],
             [
                 'role_slug' => 'accounting',
                 'role_name' => 'Comptabilité',
-                'nom' => 'Service',
-                'prenom' => 'Comptabilité',
+                'nom' => 'Durand',
+                'prenom' => 'Jean',
                 'email' => 'accounting@tpt-h.com',
                 'password' => 'password',
+                'telephone' => '+33 1 00 00 00 07'
             ],
             [
                 'role_slug' => 'purchases',
                 'role_name' => 'Achats',
-                'nom' => 'Service',
-                'prenom' => 'Achats',
+                'nom' => 'Leroy',
+                'prenom' => 'Émilie',
                 'email' => 'purchases@tpt-h.com',
                 'password' => 'password',
+                'telephone' => '+33 1 00 00 00 08'
             ],
             [
                 'role_slug' => 'supplier',
                 'role_name' => 'Fournisseur',
-                'nom' => 'Fournisseur',
-                'prenom' => 'Externe',
+                'nom' => 'Moreau',
+                'prenom' => 'Antoine',
                 'email' => 'fournisseur@tpt-h.com',
                 'password' => 'password',
+                'telephone' => '+33 1 00 00 00 09'
             ],
         ];
 
@@ -102,7 +111,7 @@ class CompleteUserSeeder extends Seeder
                     'prenom' => $userData['prenom'],
                     'password' => Hash::make($userData['password']),
                     'statut' => 'actif',
-                    'telephone' => '0000000000', // Default phone number
+                    'telephone' => $userData['telephone'] ?? '0000000000',
                 ]
             );
 
